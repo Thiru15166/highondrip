@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ShoppingBag, User, Menu, X } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useState } from "react";
+import logo from "@/assets/logo.png";
 
 const navLinks = [
   { to: "/", label: "Home", end: true },
@@ -26,11 +27,8 @@ const Header = () => {
           </button>
 
           {/* Logo */}
-          <Link
-            to="/"
-            className="font-serif text-xl lg:text-2xl font-bold tracking-wide text-foreground"
-          >
-            HIGH ON DRIP
+          <Link to="/" className="flex items-center gap-2">
+            <img src={logo} alt="HIGH ON DRIP" className="h-10 lg:h-12 w-auto" />
           </Link>
 
           {/* Desktop Nav */}

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
@@ -7,9 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
           {/* Brand */}
           <div className="md:col-span-1">
-            <h3 className="font-serif text-2xl font-bold tracking-wide mb-6">
-              HIGH ON DRIP
-            </h3>
+            <img src={logo} alt="HIGH ON DRIP" className="h-14 w-auto mb-6 brightness-0 invert" />
             <p className="text-primary-foreground/60 text-sm leading-relaxed max-w-xs">
               A study in restraint and confidence. Premium essentials designed
               for those who understand that true style speaks quietly.
