@@ -13,6 +13,9 @@ export interface Product {
   category: string;
   sizes: string[];
   image: string;
+  edition: number;
+  totalEdition: number;
+  layout: "portrait" | "landscape";
 }
 
 export const products: Product[] = [
@@ -25,6 +28,9 @@ export const products: Product[] = [
     category: "Tops",
     sizes: ["XS", "S", "M", "L", "XL"],
     image: obsidianTee,
+    edition: 14,
+    totalEdition: 50,
+    layout: "portrait",
   },
   {
     id: "shadow-knit-hoodie",
@@ -35,6 +41,9 @@ export const products: Product[] = [
     category: "Tops",
     sizes: ["S", "M", "L", "XL"],
     image: shadowHoodie,
+    edition: 8,
+    totalEdition: 30,
+    layout: "landscape",
   },
   {
     id: "stone-wash-cargo",
@@ -45,6 +54,9 @@ export const products: Product[] = [
     category: "Bottoms",
     sizes: ["28", "30", "32", "34", "36"],
     image: cargoPants,
+    edition: 22,
+    totalEdition: 40,
+    layout: "portrait",
   },
   {
     id: "midnight-bomber",
@@ -55,6 +67,9 @@ export const products: Product[] = [
     category: "Outerwear",
     sizes: ["S", "M", "L", "XL"],
     image: bomberJacket,
+    edition: 3,
+    totalEdition: 20,
+    layout: "landscape",
   },
   {
     id: "desert-linen-shirt",
@@ -65,6 +80,9 @@ export const products: Product[] = [
     category: "Tops",
     sizes: ["XS", "S", "M", "L", "XL"],
     image: linenShirt,
+    edition: 19,
+    totalEdition: 50,
+    layout: "portrait",
   },
   {
     id: "carbon-track-pants",
@@ -75,6 +93,9 @@ export const products: Product[] = [
     category: "Bottoms",
     sizes: ["S", "M", "L", "XL"],
     image: trackPants,
+    edition: 11,
+    totalEdition: 35,
+    layout: "landscape",
   },
 ];
 

@@ -1,129 +1,82 @@
 import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
-import ProductCard from "@/components/ProductCard";
+import LookbookSlide from "@/components/LookbookSlide";
 import FadeInSection from "@/components/FadeInSection";
 import { products } from "@/data/products";
-import editorial1 from "@/assets/editorial-1.jpg";
-import editorial2 from "@/assets/editorial-2.jpg";
 import logoFull from "@/assets/logo-full.png";
 
 const Index = () => {
-  const featuredProducts = products.slice(0, 3);
+  const featuredProducts = products.slice(0, 4);
 
   return (
     <Layout>
-      {/* Hero Section — Full logo as the dominant visual */}
-      <section className="py-28 lg:py-44 bg-cream">
-        <div className="container mx-auto px-6 lg:px-12 text-center">
-          <img
-            src={logoFull}
-            alt="HIGH ON DRIP — Established 2025"
-            className="mx-auto h-40 md:h-52 lg:h-64 w-auto mb-12"
-          />
-          <p className="text-xs md:text-sm tracking-[0.35em] uppercase text-muted-foreground mb-14 font-sans">
-            Premium essentials for the deliberate
-          </p>
-          <Link
-            to="/shop"
-            className="inline-block bg-foreground text-background px-12 py-4 text-xs tracking-[0.25em] uppercase font-sans transition-opacity duration-300 hover:opacity-80"
-          >
-            Shop Collection
-          </Link>
+      {/* Hero — Full bleed, logo-driven */}
+      <section className="relative h-screen flex flex-col items-center justify-center bg-foreground overflow-hidden">
+        <img
+          src={logoFull}
+          alt="HIGH ON DRIP — Established 2025"
+          className="h-32 md:h-44 lg:h-56 w-auto mb-10 brightness-0 invert"
+        />
+        <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase text-background/40 font-sans mb-16">
+          Limited drops · Premium essentials
+        </p>
+        <Link
+          to="/shop"
+          className="inline-block border border-background/20 text-background px-10 py-4 text-[10px] tracking-[0.35em] uppercase font-sans transition-all duration-500 hover:bg-neon hover:text-foreground hover:border-neon"
+        >
+          Enter Collection
+        </Link>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+          <div className="w-px h-10 bg-background/20 animate-pulse" />
+          <span className="text-background/20 text-[9px] tracking-[0.3em] uppercase font-sans">
+            Scroll
+          </span>
         </div>
       </section>
 
-      {/* Editorial Block 1 */}
+      {/* Lookbook feed */}
+      <section>
+        {featuredProducts.map((product, index) => (
+          <LookbookSlide
+            key={product.id}
+            product={product}
+            index={index}
+          />
+        ))}
+      </section>
+
+      {/* Brand statement */}
       <FadeInSection>
-        <section className="container mx-auto px-6 lg:px-12 py-20 lg:py-32">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <div className="aspect-square overflow-hidden bg-secondary">
-              <img
-                src={editorial1}
-                alt="Premium draped fabric in neutral tones"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-            <div className="max-w-md">
-              <h2 className="font-serif text-3xl lg:text-4xl text-foreground mb-6 leading-tight">
-                Crafted with
-                <br />
-                Conviction
-              </h2>
-              <p className="text-muted-foreground leading-relaxed text-sm lg:text-base font-sans">
-                Every piece in the HIGH ON DRIP collection is a deliberate
-                choice. We strip away the unnecessary, refine what remains, and
-                deliver garments that speak through quality and cut — never
-                volume.
-              </p>
-            </div>
+        <section className="py-32 lg:py-48 bg-foreground">
+          <div className="container mx-auto px-6 lg:px-10 text-center">
+            <p className="font-display text-4xl md:text-6xl lg:text-7xl text-background tracking-wide leading-tight uppercase">
+              Confidence isn't loud.
+              <br />
+              It's the quiet certainty of
+              <br />
+              knowing every detail was chosen
+              <br />
+              with purpose.
+            </p>
           </div>
         </section>
       </FadeInSection>
 
-      {/* Featured Products */}
+      {/* CTA to full collection */}
       <FadeInSection>
-        <section className="container mx-auto px-6 lg:px-12 py-20 lg:py-32">
-          <div className="text-center mb-16">
-            <h2 className="font-serif text-3xl lg:text-4xl text-foreground mb-4">
-              Selected Pieces
-            </h2>
-            <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground font-sans">
-              Current collection
+        <section className="py-24 lg:py-32 bg-background">
+          <div className="container mx-auto px-6 lg:px-10 text-center">
+            <p className="text-[10px] tracking-[0.4em] uppercase text-muted-foreground font-sans mb-8">
+              {products.length} Pieces · Limited Quantities
             </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-          <div className="text-center mt-16">
             <Link
               to="/shop"
-              className="inline-block border border-foreground text-foreground px-12 py-4 text-xs tracking-[0.25em] uppercase font-sans transition-all duration-300 hover:bg-foreground hover:text-background"
+              className="inline-block bg-foreground text-background px-12 py-4 text-[10px] tracking-[0.35em] uppercase font-sans transition-all duration-500 hover:bg-neon hover:text-foreground"
             >
-              View All
+              View Full Collection
             </Link>
-          </div>
-        </section>
-      </FadeInSection>
-
-      {/* Brand Statement */}
-      <FadeInSection>
-        <section className="py-24 lg:py-40 bg-secondary">
-          <div className="container mx-auto px-6 lg:px-12 text-center">
-            <p className="font-serif text-2xl md:text-3xl lg:text-4xl text-foreground leading-relaxed max-w-3xl mx-auto italic">
-              "Confidence isn't loud. It's the quiet certainty of knowing every
-              detail was chosen with purpose."
-            </p>
-          </div>
-        </section>
-      </FadeInSection>
-
-      {/* Editorial Block 2 */}
-      <FadeInSection>
-        <section className="container mx-auto px-6 lg:px-12 py-20 lg:py-32">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <div className="max-w-md md:order-1 order-2">
-              <h2 className="font-serif text-3xl lg:text-4xl text-foreground mb-6 leading-tight">
-                Less, But
-                <br />
-                Better
-              </h2>
-              <p className="text-muted-foreground leading-relaxed text-sm lg:text-base font-sans">
-                We don't chase trends. HIGH ON DRIP exists in the space between
-                streetwear and quiet luxury — where premium fabrics meet
-                considered design, and every silhouette is earned.
-              </p>
-            </div>
-            <div className="aspect-square overflow-hidden bg-secondary md:order-2 order-1">
-              <img
-                src={editorial2}
-                alt="Curated fashion essentials flatlay"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
           </div>
         </section>
       </FadeInSection>
