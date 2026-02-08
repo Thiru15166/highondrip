@@ -19,6 +19,7 @@ export default {
     },
     extend: {
       fontFamily: {
+        display: ["'Bebas Neue'", "'Impact'", "sans-serif"],
         serif: ["'Playfair Display'", "Georgia", "serif"],
         sans: ["'Inter'", "system-ui", "sans-serif"],
       },
@@ -26,6 +27,7 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        neon: "hsl(var(--neon))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         sand: "hsl(var(--sand))",

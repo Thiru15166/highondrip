@@ -1,24 +1,29 @@
 import Layout from "@/components/layout/Layout";
-import ProductCard from "@/components/ProductCard";
+import LookbookSlide from "@/components/LookbookSlide";
 import { products } from "@/data/products";
 
 const Shop = () => {
   return (
     <Layout>
-      <section className="container mx-auto px-6 lg:px-12 py-16 lg:py-24">
-        <div className="text-center mb-16 lg:mb-24">
-          <h1 className="font-serif text-4xl lg:text-5xl text-foreground mb-4">
-            Shop
-          </h1>
-          <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground font-sans">
-            The full collection
-          </p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 lg:gap-12">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+      {/* Title strip */}
+      <section className="h-screen flex flex-col items-center justify-center bg-foreground">
+        <h1 className="font-display text-6xl md:text-8xl lg:text-9xl text-background tracking-wider uppercase">
+          Collection
+        </h1>
+        <p className="text-[10px] tracking-[0.4em] uppercase text-background/30 font-sans mt-6">
+          {products.length} Pieces · Scroll to explore
+        </p>
+      </section>
+
+      {/* Lookbook feed — all products */}
+      <section>
+        {products.map((product, index) => (
+          <LookbookSlide
+            key={product.id}
+            product={product}
+            index={index}
+          />
+        ))}
       </section>
     </Layout>
   );

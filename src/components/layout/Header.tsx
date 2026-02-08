@@ -1,88 +1,80 @@
 import { Link } from "react-router-dom";
-import { ShoppingBag, User, Menu, X } from "lucide-react";
-import { NavLink } from "@/components/NavLink";
+import { Plus, Menu, X } from "lucide-react";
 import { useState } from "react";
 
-const navLinks = [
-  { to: "/", label: "Home", end: true },
-  { to: "/shop", label: "Shop" },
+const menuLinks = [
+  { to: "/", label: "Home" },
   { to: "/shop", label: "Collection" },
 ];
 
 const Header = () => {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="container mx-auto px-6 lg:px-12">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Mobile menu toggle */}
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
+        <div className="flex items-center justify-between px-6 lg:px-10 h-16 lg:h-20">
+          {/* Hamburger */}
           <button
-            className="md:hidden text-foreground"
-            onClick={() => setMobileOpen(!mobileOpen)}
+            className="text-white"
+            onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
-            {mobileOpen ? <X className="h-5 w-5" strokeWidth={1.5} /> : <Menu className="h-5 w-5" strokeWidth={1.5} />}
+            {menuOpen ? (
+              <X className="h-6 w-6" strokeWidth={1.5} />
+            ) : (
+              <Menu className="h-6 w-6" strokeWidth={1.5} />
+            )}
           </button>
 
-          {/* Wordmark — clean typographic anchor, ZARA-style */}
-          <Link to="/" className="font-serif text-xl lg:text-2xl tracking-tight text-foreground select-none">
+          {/* Wordmark */}
+          <Link
+            to="/"
+            className="font-display text-2xl lg:text-3xl tracking-wide text-white select-none"
+          >
             HIGH ON DRIP
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8 lg:gap-12">
-            {navLinks.map((link) => (
-              <NavLink
+          {/* Cart — minimal "+" icon */}
+          <button
+            className="text-white"
+            aria-label="Cart"
+          >
+            <Plus className="h-5 w-5" strokeWidth={1.5} />
+          </button>
+        </div>
+      </header>
+
+      {/* Full-screen menu overlay */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-[60] bg-foreground flex flex-col items-center justify-center">
+          <button
+            className="absolute top-5 left-6 lg:left-10 text-background"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <X className="h-6 w-6" strokeWidth={1.5} />
+          </button>
+
+          <nav className="flex flex-col items-center gap-8">
+            {menuLinks.map((link) => (
+              <Link
                 key={link.label}
                 to={link.to}
-                end={link.end}
-                className="text-xs tracking-[0.2em] uppercase text-muted-foreground transition-colors duration-300 hover:text-foreground"
-                activeClassName="text-foreground"
+                onClick={() => setMenuOpen(false)}
+                className="font-display text-5xl md:text-7xl text-background tracking-wider transition-opacity duration-300 hover:opacity-50"
               >
                 {link.label}
-              </NavLink>
+              </Link>
             ))}
           </nav>
 
-          {/* Icons */}
-          <div className="flex items-center gap-4 lg:gap-6">
-            <button
-              className="text-foreground transition-opacity duration-300 hover:opacity-60"
-              aria-label="Account"
-            >
-              <User className="h-5 w-5" strokeWidth={1.5} />
-            </button>
-            <button
-              className="text-foreground transition-opacity duration-300 hover:opacity-60"
-              aria-label="Cart"
-            >
-              <ShoppingBag className="h-5 w-5" strokeWidth={1.5} />
-            </button>
-          </div>
+          <p className="absolute bottom-10 text-background/30 text-xs tracking-[0.3em] uppercase font-sans">
+            © 2026 HIGH ON DRIP
+          </p>
         </div>
-      </div>
-
-      {/* Mobile Nav */}
-      {mobileOpen && (
-        <nav className="md:hidden border-t border-border bg-background">
-          <div className="container mx-auto px-6 py-6 flex flex-col gap-4">
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.label}
-                to={link.to}
-                end={link.end}
-                className="text-sm tracking-[0.2em] uppercase text-muted-foreground transition-colors duration-300 hover:text-foreground"
-                activeClassName="text-foreground"
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </NavLink>
-            ))}
-          </div>
-        </nav>
       )}
-    </header>
+    </>
   );
 };
 
