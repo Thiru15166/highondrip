@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom";
-import logo from "@/assets/logo.png";
+import logoFull from "@/assets/logo-full.png";
 
 const Footer = () => {
   return (
     <footer className="bg-foreground text-primary-foreground">
       <div className="container mx-auto px-6 lg:px-12 py-16 lg:py-24">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
-          {/* Brand */}
+          {/* Brand — Full logo, inverted for dark background */}
           <div className="md:col-span-1">
-            <img src={logo} alt="HIGH ON DRIP" className="h-14 w-auto mb-6 brightness-0 invert" />
+            <img src={logoFull} alt="HIGH ON DRIP — Established 2025" className="h-24 w-auto mb-8 brightness-0 invert" />
             <p className="text-primary-foreground/60 text-sm leading-relaxed max-w-xs">
               A study in restraint and confidence. Premium essentials designed
               for those who understand that true style speaks quietly.

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ShoppingBag, User, Menu, X } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useState } from "react";
-import logo from "@/assets/logo.png";
+import logoFull from "@/assets/logo-full.png";
 
 const navLinks = [
   { to: "/", label: "Home", end: true },
@@ -26,9 +26,9 @@ const Header = () => {
             {mobileOpen ? <X className="h-5 w-5" strokeWidth={1.5} /> : <Menu className="h-5 w-5" strokeWidth={1.5} />}
           </button>
 
-          {/* Logo */}
+          {/* Logo — compact version for header */}
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="HIGH ON DRIP" className="h-10 lg:h-12 w-auto" />
+            <img src={logoFull} alt="HIGH ON DRIP" className="h-10 lg:h-14 w-auto" />
           </Link>
 
           {/* Desktop Nav */}
