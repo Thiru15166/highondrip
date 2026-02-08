@@ -5,18 +5,21 @@ import FadeInSection from "@/components/FadeInSection";
 import { products } from "@/data/products";
 import editorial1 from "@/assets/editorial-1.jpg";
 import editorial2 from "@/assets/editorial-2.jpg";
+import logoFull from "@/assets/logo-full.png";
 
 const Index = () => {
   const featuredProducts = products.slice(0, 3);
 
   return (
     <Layout>
-      {/* Hero Section */}
+      {/* Hero Section — Full logo as the dominant visual */}
       <section className="py-28 lg:py-44 bg-cream">
         <div className="container mx-auto px-6 lg:px-12 text-center">
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-[6.5rem] font-bold text-foreground mb-6 tracking-tight leading-[1.05]">
-            Wear Intent
-          </h1>
+          <img
+            src={logoFull}
+            alt="HIGH ON DRIP — Established 2025"
+            className="mx-auto h-40 md:h-52 lg:h-64 w-auto mb-12"
+          />
           <p className="text-xs md:text-sm tracking-[0.35em] uppercase text-muted-foreground mb-14 font-sans">
             Premium essentials for the deliberate
           </p>
