@@ -13,6 +13,7 @@ const firebaseConfig = {
   storageBucket: "mensmass-7fa2e.firebasestorage.app",
   messagingSenderId: "549834471892",
   appId: "1:549834471892:web:eb707b9479867e06a2be41",
+};
 
 const app = initializeApp(firebaseConfig);
 
