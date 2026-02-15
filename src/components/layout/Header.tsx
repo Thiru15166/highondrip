@@ -1,58 +1,61 @@
-import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Layout from "@/components/layout/Layout";
+import ProductCard from "@/components/ProductCard";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/firebase";
 
-const Header = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
+const Shop = () => {
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const menuLinks = [
-    { to: "/", label: "Home" },
-    { to: "/shop", label: "Collection" },
-    { to: "/login", label: "Login" },
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const snapshot = await getDocs(collection(db, "products"));
+
+      const list = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setProducts(list);
+      setLoading(false);
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleAddToCart = (product: any, size: string) => {
+    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+    const updatedCart = [
+      ...existingCart,
+      {
+        ...product,
+        size,
+        quantity: 1,
+      },
+    ];
+
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
-      <div className="flex items-center justify-between px-6 lg:px-16 h-16">
-        {/* Logo */}
-        <Link to="/" className="text-xl font-bold tracking-wide">
-          HIGH ON DRIP
-        </Link>
+    <Layout>
+      <div className="max-w-7xl mx-auto px-4 py-10">
+        <h1 className="text-3xl font-bold mb-8 text-center">Our Collection</h1>
 
-        {/* Desktop Menu */}
-        <nav className="hidden md:flex items-center space-x-8">
-          {menuLinks.map((link) => (
-            <Link key={link.to} to={link.to} className="text-sm font-medium hover:text-gray-500 transition">
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Mobile Menu Button */}
-        <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="md:hidden bg-white shadow-lg">
-          <div className="flex flex-col items-center py-4 space-y-4">
-            {menuLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                onClick={() => setMenuOpen(false)}
-                className="text-sm font-medium hover:text-gray-500 transition"
-              >
-                {link.label}
-              </Link>
+        {loading ? (
+          <p className="text-center">Loading...</p>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
             ))}
           </div>
-        </div>
-      )}
-    </header>
+        )}
+      </div>
+    </Layout>
   );
 };
 
-export default Header;
+export default Shop;
