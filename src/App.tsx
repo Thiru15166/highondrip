@@ -28,25 +28,22 @@ async function testFirestore() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      {/* 🔥 TEST BUTTON */}
-<button
-  onClick={testFirestore}
-  style={{
-    position: "fixed",
-    top: "20px",
-    right: "20px",
-    zIndex: 9999,
-    backgroundColor: "red",
-    color: "white",
-    padding: "10px 20px",
-    borderRadius: "8px",
-    border: "none",
-    cursor: "pointer"
-  }}
->
-  FIREBASE TEST
-</button>      
-        Test Firestore
+      <button
+        onClick={testFirestore}
+        style={{
+          position: "fixed",
+          top: "20px",
+          right: "20px",
+          zIndex: 9999,
+          backgroundColor: "red",
+          color: "white",
+          padding: "10px 20px",
+          borderRadius: "8px",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        FIREBASE TEST
       </button>
 
       <BrowserRouter>
