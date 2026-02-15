@@ -17,10 +17,23 @@ const Shop = () => {
           ...doc.data(),
         }));
 
-        // Only show active products
-        const activeProducts = list.filter((product) => product.active !== false);
+        // 🔥 Convert each image into separate product card
+        const expandedProducts: any[] = [];
 
-        setProducts(activeProducts);
+        list.forEach((product) => {
+          if (product.images && product.images.length > 0) {
+            product.images.forEach((img: string, index: number) => {
+              expandedProducts.push({
+                id: product.id + "-" + index,
+                name: product.name,
+                price: product.price,
+                image: img,
+              });
+            });
+          }
+        });
+
+        setProducts(expandedProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -43,11 +56,7 @@ const Shop = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
           {products.map((product) => (
             <div key={product.id} className="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition">
-              <img
-                src={product.images && product.images.length > 0 ? product.images[0] : ""}
-                alt={product.name}
-                className="w-full h-80 object-cover"
-              />
+              <img src={product.image} alt={product.name} className="w-full h-80 object-cover" />
 
               <div className="p-5">
                 <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
