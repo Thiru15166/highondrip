@@ -1,27 +1,64 @@
-type Props = {
-  product: any;
-  onAddToCart: (product: any) => void;
-};
+import { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase"; // make sure path correct
+import { useNavigate, Link } from "react-router-dom";
 
-const ProductCard = ({ product, onAddToCart }: Props) => {
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate("/"); // go home after login
+    } catch (err: any) {
+      setError("Invalid email or password");
+    }
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition">
-      <img src={product.image} alt={product.name} className="w-full aspect-square object-cover" />
+    <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="w-full max-w-sm p-6 border rounded-lg shadow">
+        <h1 className="text-2xl font-bold mb-4 text-center">Login to Account</h1>
 
-      <div className="p-4">
-        <h2 className="text-lg font-semibold">{product.name}</h2>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full border p-2 rounded"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <p className="text-gray-600 mt-1">₹{product.price}</p>
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full border p-2 rounded"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <button
-          onClick={() => onAddToCart(product)}
-          className="mt-4 w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition"
-        >
-          Add to Cart
-        </button>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
+          <button type="submit" className="w-full bg-black text-white p-2 rounded">
+            Login
+          </button>
+        </form>
+
+        <p className="text-sm text-center mt-4">
+          Don’t have an account?{" "}
+          <Link to="/register" className="underline">
+            Register
+          </Link>
+        </p>
       </div>
     </div>
   );
 };
 
-export default ProductCard;
+export default Login;
