@@ -1,88 +1,45 @@
-import { useEffect, useState } from "react";
-import Layout from "@/components/layout/Layout";
-import ProductCard from "@/components/ProductCard";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase";
+import { useState } from "react";
 
-const Shop = () => {
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+type Props = {
+  product: any;
+  onAddToCart: (product: any, size: string) => void;
+};
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const snapshot = await getDocs(collection(db, "products"));
+const ProductCard = ({ product, onAddToCart }: Props) => {
+  const sizes = Array.isArray(product?.sizes) ? product.sizes : ["S", "M", "L", "XL", "2XL"];
 
-        const list = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // 🔥 Expand images into separate cards (6 images → 6 products)
-        const expanded: any[] = [];
-
-        list.forEach((product: any) => {
-          if (Array.isArray(product.images)) {
-            product.images.forEach((img: string, index: number) => {
-              expanded.push({
-                id: product.id + "_" + index,
-                name: product.name + " - Design " + (index + 1),
-                price: product.price,
-                image: img,
-                sizes: product.sizes || ["S", "M", "L", "XL", "2XL"],
-              });
-            });
-          } else {
-            expanded.push({
-              id: product.id,
-              name: product.name,
-              price: product.price,
-              image: product.image,
-              sizes: product.sizes || ["S", "M", "L", "XL", "2XL"],
-            });
-          }
-        });
-
-        setProducts(expanded);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  // ✅ FINAL CART FUNCTION
-  const handleAddToCart = (product: any, size: string) => {
-    const existing = JSON.parse(localStorage.getItem("cart") || "[]");
-    existing.push({ id: product.id, name: product.name, price: product.price, size, image: product.image });
-    localStorage.setItem("cart", JSON.stringify(existing));
-    alert(`Added ${product.name} (Size ${size}) to cart`);
-  };
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="text-center py-20 text-lg">Loading products...</div>
-      </Layout>
-    );
-  }
+  const [selectedSize, setSelectedSize] = useState(sizes[0]);
 
   return (
-    <Layout>
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-10 text-center">Our Collection</h1>
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition overflow-hidden">
+      <img src={product.image} alt={product.name} className="w-full aspect-square object-cover" />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
+      <div className="p-4">
+        <h2 className="text-lg font-semibold">{product.name}</h2>
+        <p className="text-gray-600 mt-1">₹{product.price}</p>
+
+        {/* Size Dropdown */}
+        <select
+          value={selectedSize}
+          onChange={(e) => setSelectedSize(e.target.value)}
+          className="mt-3 w-full border p-2 rounded-lg"
+        >
+          {sizes.map((size: string, index: number) => (
+            <option key={index} value={size}>
+              {size}
+            </option>
           ))}
-        </div>
+        </select>
+
+        <button
+          onClick={() => onAddToCart(product, selectedSize)}
+          className="mt-4 w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800"
+        >
+          Add to Cart
+        </button>
       </div>
-    </Layout>
+    </div>
   );
 };
 
-export default Shop;
+export default ProductCard;
