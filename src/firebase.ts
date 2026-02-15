@@ -6,7 +6,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBLOMmovmBaVsEVJJfeevOCqdNCfe6Ln7c",
   authDomain: "mensmass-7fa2e.firebaseapp.com",
   projectId: "mensmass-7fa2e",
-  storageBucket: "mensmass-7fa2e.firebasestorage.app",
+  storageBucket: "mensmass-7fa2e.firebasestorage.appspot.com",
   messagingSenderId: "549834471892",
   appId: "1:549834471892:web:eb707b9479867e06a2be41",
 };
