@@ -17,7 +17,10 @@ const Shop = () => {
           ...doc.data(),
         }));
 
-        setProducts(list);
+        // Only show active products
+        const activeProducts = list.filter((product) => product.active !== false);
+
+        setProducts(activeProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -31,25 +34,27 @@ const Shop = () => {
   return (
     <Layout>
       <div className="container mx-auto px-6 py-16">
+        <h1 className="text-3xl font-bold text-center mb-12">Our Collection</h1>
+
         {loading && <p className="text-center text-lg">Loading products...</p>}
 
         {!loading && products.length === 0 && <p className="text-center text-lg">No products found.</p>}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
           {products.map((product) => (
-            <div key={product.id} className="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div key={product.id} className="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition">
               <img
                 src={product.images && product.images.length > 0 ? product.images[0] : ""}
                 alt={product.name}
                 className="w-full h-80 object-cover"
               />
 
-              <div className="p-4">
-                <h2 className="text-xl font-semibold">{product.name}</h2>
+              <div className="p-5">
+                <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
 
-                <p className="text-gray-600 mt-2">₹{product.price}</p>
+                <p className="text-gray-600 mb-4">₹{product.price}</p>
 
-                <button className="mt-4 w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition">
+                <button className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition">
                   Add to Cart
                 </button>
               </div>
