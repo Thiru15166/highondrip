@@ -1,11 +1,11 @@
+import { useEffect, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import ProductCard from "@/components/ProductCard";
-import { useEffect, useState } from "react";
 import { collection, getDocs, addDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "@/firebase";
 
 const Shop = () => {
-  const [products, setProducts] = useState<Record<string, any>[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,22 +13,23 @@ const Shop = () => {
       try {
         const snapshot = await getDocs(collection(db, "products"));
 
-        const list: Record<string, any>[] = snapshot.docs.map((doc) => ({
+        const list = snapshot.docs.map((doc) => ({
           id: doc.id,
-          ...(doc.data() as Record<string, any>),
+          ...doc.data(),
         }));
 
-        // Expand images into separate product cards
+        // 🔥 Expand multiple images into separate cards
         const expanded: any[] = [];
 
-        list.forEach((product) => {
-          if (product.images) {
+        list.forEach((product: any) => {
+          if (product.images && Array.isArray(product.images)) {
             product.images.forEach((img: string, index: number) => {
               expanded.push({
-                id: product.id + "-" + index,
+                id: product.id + "_" + index,
                 name: product.name + " - Design " + (index + 1),
                 price: product.price,
                 image: img,
+                sizes: product.sizes || ["M", "L", "XL"],
               });
             });
           }
@@ -36,7 +37,7 @@ const Shop = () => {
 
         setProducts(expanded);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching products:", error);
       } finally {
         setLoading(false);
       }
@@ -45,34 +46,38 @@ const Shop = () => {
     fetchProducts();
   }, []);
 
-  const addToCart = async (product: any) => {
+  // 🔥 Add to cart with size
+  const handleAddToCart = async (product: any, size: string) => {
     try {
       await addDoc(collection(db, "cart"), {
+        productId: product.id,
         name: product.name,
         price: product.price,
         image: product.image,
-        quantity: 1,
+        size: size,
         createdAt: new Date(),
       });
 
-      alert("Added to cart ✅");
+      alert("Added to cart successfully");
     } catch (error) {
-      console.error("Cart error:", error);
+      console.error("Add to cart error:", error);
     }
   };
 
   return (
     <Layout>
-      <div className="container mx-auto px-6 py-16">
-        <h1 className="text-3xl font-bold text-center mb-12">Our Collection</h1>
+      <div className="max-w-7xl mx-auto px-4 py-10">
+        <h1 className="text-3xl font-bold mb-8 text-center">Our Collection</h1>
 
-        {loading && <p className="text-center">Loading...</p>}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} onAddToCart={addToCart} />
-          ))}
-        </div>
+        {loading ? (
+          <p className="text-center">Loading...</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
+            ))}
+          </div>
+        )}
       </div>
     </Layout>
   );
