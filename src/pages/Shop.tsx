@@ -56,8 +56,10 @@ const Shop = () => {
 
   // ✅ FINAL CART FUNCTION
   const handleAddToCart = (product: any, size: string) => {
-    console.log("Added:", product.name, "Size:", size);
-    alert(`Added ${product.name} - Size ${size}`);
+    const existing = JSON.parse(localStorage.getItem("cart") || "[]");
+    existing.push({ id: product.id, name: product.name, price: product.price, size, image: product.image });
+    localStorage.setItem("cart", JSON.stringify(existing));
+    alert(`Added ${product.name} (Size ${size}) to cart`);
   };
 
   if (loading) {
