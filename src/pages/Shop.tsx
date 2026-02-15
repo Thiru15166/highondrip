@@ -5,7 +5,7 @@ import { collection, getDocs, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 const Shop = () => {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Record<string, any>[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,9 +13,9 @@ const Shop = () => {
       try {
         const snapshot = await getDocs(collection(db, "products"));
 
-        const list = snapshot.docs.map((doc) => ({
+        const list: Record<string, any>[] = snapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data(),
+          ...(doc.data() as Record<string, any>),
         }));
 
         // Expand images into separate product cards
