@@ -2,7 +2,7 @@ import Layout from "@/components/layout/Layout";
 import LookbookSlide from "@/components/LookbookSlide";
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../main";
+import { db } from "../firebase";
 
 const Shop = () => {
   const [products, setProducts] = useState<any[]>([]);
