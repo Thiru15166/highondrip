@@ -1,6 +1,7 @@
 import Layout from "@/components/layout/Layout";
+import ProductCard from "@/components/ProductCard";
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 const Shop = () => {
@@ -17,15 +18,15 @@ const Shop = () => {
           ...doc.data(),
         }));
 
-        // 🔥 Convert each image into separate product card
-        const expandedProducts: any[] = [];
+        // Expand images into separate product cards
+        const expanded: any[] = [];
 
         list.forEach((product) => {
-          if (product.images && product.images.length > 0) {
+          if (product.images) {
             product.images.forEach((img: string, index: number) => {
-              expandedProducts.push({
+              expanded.push({
                 id: product.id + "-" + index,
-                name: product.name,
+                name: product.name + " - Design " + (index + 1),
                 price: product.price,
                 image: img,
               });
@@ -33,9 +34,9 @@ const Shop = () => {
           }
         });
 
-        setProducts(expandedProducts);
+        setProducts(expanded);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -44,30 +45,32 @@ const Shop = () => {
     fetchProducts();
   }, []);
 
+  const addToCart = async (product: any) => {
+    try {
+      await addDoc(collection(db, "cart"), {
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: 1,
+        createdAt: new Date(),
+      });
+
+      alert("Added to cart ✅");
+    } catch (error) {
+      console.error("Cart error:", error);
+    }
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-6 py-16">
         <h1 className="text-3xl font-bold text-center mb-12">Our Collection</h1>
 
-        {loading && <p className="text-center text-lg">Loading products...</p>}
+        {loading && <p className="text-center">Loading...</p>}
 
-        {!loading && products.length === 0 && <p className="text-center text-lg">No products found.</p>}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {products.map((product) => (
-            <div key={product.id} className="bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-2xl transition">
-              <img src={product.image} alt={product.name} className="w-full h-80 object-cover" />
-
-              <div className="p-5">
-                <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-
-                <p className="text-gray-600 mb-4">₹{product.price}</p>
-
-                <button className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition">
-                  Add to Cart
-                </button>
-              </div>
-            </div>
+            <ProductCard key={product.id} product={product} onAddToCart={addToCart} />
           ))}
         </div>
       </div>
