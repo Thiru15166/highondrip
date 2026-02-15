@@ -1,28 +1,26 @@
-import { Link } from "react-router-dom";
-import type { Product } from "@/data/products";
+type Props = {
+  product: any;
+  onAddToCart: (product: any) => void;
+};
 
-interface ProductCardProps {
-  product: Product;
-}
-
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, onAddToCart }: Props) => {
   return (
-    <Link to={`/product/${product.id}`} className="group block">
-      <div className="aspect-square overflow-hidden bg-secondary mb-4">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-[1.03] group-hover:opacity-90"
-          loading="lazy"
-        />
+    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition">
+      <img src={product.image} alt={product.name} className="w-full aspect-square object-cover" />
+
+      <div className="p-4">
+        <h2 className="text-lg font-semibold">{product.name}</h2>
+
+        <p className="text-gray-600 mt-1">₹{product.price}</p>
+
+        <button
+          onClick={() => onAddToCart(product)}
+          className="mt-4 w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition"
+        >
+          Add to Cart
+        </button>
       </div>
-      <h3 className="font-serif text-base lg:text-lg text-foreground mb-1">
-        {product.name}
-      </h3>
-      <p className="text-sm text-muted-foreground font-sans">
-        ${product.price}
-      </p>
-    </Link>
+    </div>
   );
 };
 
