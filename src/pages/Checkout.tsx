@@ -18,8 +18,10 @@ const Checkout = () => {
   const [address, setAddress] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
   const navigate = useNavigate();
 
+  // Load cart from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("cart");
     if (stored) {
@@ -31,40 +33,23 @@ const Checkout = () => {
     }
   }, []);
 
-  const totalAmount = cartItems.reduce((sum, item) => sum + item.price, 0);
+  const total = cartItems.reduce((sum, item) => sum + item.price, 0);
 
-  const handleConfirmOrder = async () => {
-    setError("");
-
-    const trimmedName = name.trim();
-    const trimmedPhone = phone.trim();
-    const trimmedAddress = address.trim();
-
-    if (!trimmedName || !trimmedPhone || !trimmedAddress) {
-      setError("Please fill in all fields.");
+  const handleSubmit = async () => {
+    if (!name || !phone || !address) {
+      setError("Please fill all fields");
       return;
     }
-
-    if (trimmedPhone.length < 10) {
-      setError("Please enter a valid phone number.");
-      return;
-    }
-
-    if (cartItems.length === 0) {
-      setError("Your cart is empty.");
-      return;
-    }
-
-    setSubmitting(true);
 
     try {
+      setSubmitting(true);
+
       await addDoc(collection(db, "orders"), {
-        name: trimmedName,
-        phone: trimmedPhone,
-        address: trimmedAddress,
+        customerName: name,
+        phone,
+        address,
         items: cartItems,
-        totalAmount,
-        status: "pending",
+        total,
         createdAt: new Date(),
       });
 
@@ -72,7 +57,7 @@ const Checkout = () => {
       alert("Order placed successfully!");
       navigate("/");
     } catch (err) {
-      console.error("Order error:", err);
+      console.error(err);
       setError("Failed to place order. Please try again.");
     } finally {
       setSubmitting(false);
@@ -81,76 +66,63 @@ const Checkout = () => {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto px-4 py-12">
-        <h1 className="text-2xl font-bold mb-8">Checkout</h1>
+      <div className="max-w-3xl mx-auto py-10 px-4">
+        <h1 className="text-2xl font-bold mb-6">Checkout</h1>
 
         {/* Order Summary */}
-        <div className="border border-border rounded-lg p-6 bg-card mb-8">
-          <h2 className="text-lg font-semibold mb-4 text-card-foreground">Order Summary</h2>
-          <div className="space-y-3">
-            {cartItems.map((item, index) => (
-              <div key={index} className="flex justify-between text-sm">
-                <span className="text-card-foreground">
-                  {item.name} — {item.size}
-                </span>
-                <span className="text-card-foreground">₹{item.price}</span>
-              </div>
-            ))}
-          </div>
-          <div className="border-t border-border mt-4 pt-4 flex justify-between font-bold">
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+          <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+
+          {cartItems.map((item, index) => (
+            <div key={index} className="flex justify-between mb-2">
+              <span>
+                {item.name} - {item.size}
+              </span>
+              <span>₹{item.price}</span>
+            </div>
+          ))}
+
+          <div className="border-t mt-4 pt-4 font-semibold flex justify-between">
             <span>Total</span>
-            <span>₹{totalAmount}</span>
+            <span>₹{total}</span>
           </div>
         </div>
 
-        {/* Shipping Details */}
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Full Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={100}
-              className="w-full border border-input rounded-lg px-4 py-2.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="Enter your full name"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Phone Number</label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              maxLength={15}
-              className="w-full border border-input rounded-lg px-4 py-2.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="Enter your phone number"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Full Address</label>
-            <textarea
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              maxLength={500}
-              rows={3}
-              className="w-full border border-input rounded-lg px-4 py-2.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
-              placeholder="Enter your delivery address"
-            />
-          </div>
+        {/* Customer Form */}
+        <div className="bg-white rounded-2xl shadow-md p-6">
+          <input
+            type="text"
+            placeholder="Full Name"
+            className="w-full border p-3 rounded-lg mb-4"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+
+          <input
+            type="tel"
+            placeholder="Phone Number"
+            className="w-full border p-3 rounded-lg mb-4"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+
+          <textarea
+            placeholder="Full Address"
+            className="w-full border p-3 rounded-lg mb-4"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          />
+
+          {error && <p className="text-red-500 mb-4">{error}</p>}
+
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="w-full bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition"
+          >
+            {submitting ? "Placing Order..." : "Confirm Order"}
+          </button>
         </div>
-
-        {error && (
-          <p className="mt-4 text-sm text-destructive">{error}</p>
-        )}
-
-        <button
-          onClick={handleConfirmOrder}
-          disabled={submitting}
-          className="mt-8 w-full bg-primary text-primary-foreground py-3 rounded-lg font-medium hover:bg-primary/90 transition disabled:opacity-50"
-        >
-          {submitting ? "Placing Order..." : "Confirm Order"}
-        </button>
       </div>
     </Layout>
   );
