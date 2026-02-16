@@ -1,56 +1,65 @@
 import { useState } from "react";
 
-type Props = {
-  product?: any;
-  onAddToCart?: (product: any, size: string) => void;
-};
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string[];
+  sizes: { [key: string]: number };
+}
 
-const ProductCard = ({ product, onAddToCart }: Props) => {
-  // 🛑 If product is undefined, stop rendering
-  if (!product) return null;
+interface Props {
+  product: Product;
+  image: string;
+}
 
-  const sizes = Array.isArray(product.sizes) ? product.sizes : ["S", "M", "L", "XL", "2XL"];
+const ProductCard = ({ product, image }: Props) => {
+  const [selectedSize, setSelectedSize] = useState("");
 
-  const [selectedSize, setSelectedSize] = useState(sizes[0]);
+  const handleAddToCart = () => {
+    if (!selectedSize) {
+      alert("Please select size");
+      return;
+    }
 
-  const handleAdd = () => {
-    if (!onAddToCart) return;
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image,
+      size: selectedSize,
+    };
 
-    onAddToCart(product, selectedSize);
+    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+    localStorage.setItem("cart", JSON.stringify([...existingCart, cartItem]));
+
+    alert("Added to cart");
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-      {/* SAFE IMAGE */}
-      {product.image && (
-        <img src={product.image} alt={product.name || "Product"} className="w-full h-72 object-cover" />
-      )}
+    <div className="border p-4 rounded-lg shadow-sm">
+      <img src={image} alt={product.name} className="w-full h-64 object-cover rounded-md" />
 
-      <div className="p-4">
-        <h2 className="text-lg font-semibold">{product.name || "No Name"}</h2>
+      <h3 className="mt-3 font-semibold uppercase text-sm">{product.name}</h3>
 
-        <p className="text-gray-600 mt-1">₹{product.price || 0}</p>
+      <p className="text-gray-600 mb-2">₹{product.price}</p>
 
-        {/* Size Dropdown */}
-        <select
-          value={selectedSize}
-          onChange={(e) => setSelectedSize(e.target.value)}
-          className="mt-3 w-full border p-2 rounded-lg"
-        >
-          {sizes.map((size: string) => (
-            <option key={size} value={size}>
-              {size}
-            </option>
-          ))}
-        </select>
+      <select className="w-full border p-2 mb-3" value={selectedSize} onChange={(e) => setSelectedSize(e.target.value)}>
+        <option value="">Select Size</option>
+        {Object.entries(product.sizes || {}).map(
+          ([size, stock]) =>
+            stock > 0 && (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ),
+        )}
+      </select>
 
-        <button
-          onClick={handleAdd}
-          className="mt-4 w-full bg-black text-white py-2 rounded-xl hover:bg-gray-800 transition"
-        >
-          Add to Cart
-        </button>
-      </div>
+      <button onClick={handleAddToCart} className="w-full bg-black text-white py-2">
+        ADD TO CART
+      </button>
     </div>
   );
 };
