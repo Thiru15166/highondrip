@@ -1,59 +1,50 @@
-import { useState } from "react";
+import { Link } from "react-router-dom";
 
-type Product = {
+type Props = {
   id: string;
   name: string;
   price: number;
-  sizes?: string[];
-};
-
-type Props = {
-  product: Product;
   image: string;
-  onAddToCart: (product: Product, size: string) => void;
+  edition?: number;
+  totalEdition?: number;
 };
 
-const ProductCard = ({ product, image, onAddToCart }: Props) => {
-  const sizes = product.sizes?.length ? product.sizes : ["S", "M", "L", "XL", "2XL"];
-
-  const [selectedSize, setSelectedSize] = useState(sizes[0]);
-
+const ProductCard = ({ id, name, price, image, edition, totalEdition }: Props) => {
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition p-4">
-      {/* IMAGE */}
-      <div className="w-full aspect-[4/5] bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
-        {image ? <img src={image} alt={product.name} className="w-full h-full object-cover" /> : <span>No Image</span>}
+    <Link to={`/product/${id}`} className="group block">
+      {/* Square image container */}
+      <div className="aspect-square overflow-hidden bg-secondary mb-4">
+        {image ? (
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-label">
+            No Image
+          </div>
+        )}
       </div>
 
-      {/* INFO */}
-      <div className="mt-4">
-        <h2 className="text-lg font-medium">{product.name}</h2>
-        <p className="text-gray-600 mb-3">₹ {product.price}</p>
-
-        {/* SIZE */}
-        <div className="flex gap-2 mb-4 flex-wrap">
-          {sizes.map((size) => (
-            <button
-              key={size}
-              onClick={() => setSelectedSize(size)}
-              className={`px-3 py-1 text-sm border rounded ${
-                selectedSize === size ? "bg-black text-white" : "bg-white"
-              }`}
-            >
-              {size}
-            </button>
-          ))}
+      {/* Info */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="font-display text-lg text-foreground leading-tight">
+            {name}
+          </h3>
+          {edition && totalEdition && (
+            <p className="text-label text-muted-foreground mt-1">
+              {edition} / {totalEdition}
+            </p>
+          )}
         </div>
-
-        {/* BUTTON */}
-        <button
-          onClick={() => onAddToCart(product, selectedSize)}
-          className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition"
-        >
-          Add to Cart
-        </button>
+        <p className="text-sm font-sans text-foreground whitespace-nowrap">
+          ${price}
+        </p>
       </div>
-    </div>
+    </Link>
   );
 };
 

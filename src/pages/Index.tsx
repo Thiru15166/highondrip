@@ -1,69 +1,101 @@
-import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
+import Layout from "@/components/layout/Layout";
 import ProductCard from "@/components/ProductCard";
+import FadeInSection from "@/components/FadeInSection";
+import { products } from "@/data/products";
+import editorial1 from "@/assets/editorial-1.jpg";
+
+const featured = products.slice(0, 4);
 
 const Index = () => {
-  const [products, setProducts] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const snapshot = await getDocs(collection(db, "products"));
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setProducts(data);
-    };
-
-    fetchProducts();
-  }, []);
-
-  const handleAddToCart = (product: any, size: string) => {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-    cart.push({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      size,
-      image: product.images?.[0] || product.image || "",
-    });
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    alert("Added to cart");
-  };
-
   return (
-    <>
-      <Navbar />
-
-      {/* Hero Section */}
-      <section className="text-center py-16 bg-gray-100">
-        <h1 className="text-4xl font-bold">HIGH ON DRIP</h1>
-        <p className="text-gray-500 mt-3">Premium Fashion Collection</p>
+    <Layout>
+      {/* Hero Section — Typography-led */}
+      <section className="min-h-[80vh] flex flex-col items-center justify-center px-6 text-center">
+        <FadeInSection>
+          <p className="text-label text-muted-foreground mb-6">
+            Premium Streetwear
+          </p>
+          <h1 className="text-display-xl text-foreground mb-8">
+            Drip with
+            <br />
+            Intention
+          </h1>
+          <Link
+            to="/shop"
+            className="inline-block border border-foreground px-10 py-4 text-label text-foreground hover:bg-foreground hover:text-primary-foreground transition-all duration-500"
+          >
+            Shop Collection
+          </Link>
+        </FadeInSection>
       </section>
 
-      {/* Product Section */}
-      <section className="px-6 py-10">
-        <h2 className="text-2xl font-semibold mb-6 text-center">Our Products</h2>
+      {/* Editorial Block — Image + Text */}
+      <FadeInSection>
+        <section className="max-w-[1400px] mx-auto px-6 lg:px-10 py-[var(--section-gap)]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+            <div className="aspect-square overflow-hidden bg-secondary">
+              <img
+                src={editorial1}
+                alt="Editorial"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="max-w-md lg:pl-8">
+              <p className="text-label text-muted-foreground mb-6">The Philosophy</p>
+              <h2 className="text-display-l text-foreground mb-6">
+                Less noise.
+                <br />
+                More drip.
+              </h2>
+              <p className="text-body text-muted-foreground">
+                Every piece in our collection is designed with restraint and purpose.
+                Premium fabrics. Limited editions. No compromises.
+              </p>
+            </div>
+          </div>
+        </section>
+      </FadeInSection>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              image={product.images?.[0] || product.image || ""}
-              onAddToCart={handleAddToCart}
-            />
-          ))}
-        </div>
-      </section>
+      {/* Featured Products Grid */}
+      <FadeInSection>
+        <section className="max-w-[1400px] mx-auto px-6 lg:px-10 py-[var(--section-gap)]">
+          <div className="flex items-center justify-between mb-12">
+            <p className="text-label text-muted-foreground">Featured Drops</p>
+            <Link
+              to="/shop"
+              className="text-label text-muted-foreground hover:text-foreground transition-colors duration-300"
+            >
+              View All
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            {featured.map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                price={product.price}
+                image={product.image}
+                edition={product.edition}
+                totalEdition={product.totalEdition}
+              />
+            ))}
+          </div>
+        </section>
+      </FadeInSection>
 
-      <Footer />
-    </>
+      {/* Brand Statement */}
+      <FadeInSection>
+        <section className="py-[var(--section-gap)] px-6 text-center">
+          <h2 className="text-display-l text-foreground max-w-3xl mx-auto">
+            Confidence isn't loud.
+            <br />
+            It's intentional.
+          </h2>
+        </section>
+      </FadeInSection>
+    </Layout>
   );
 };
 
