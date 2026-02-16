@@ -14,7 +14,7 @@ type Props = {
 };
 
 const ProductCard = ({ product, onAddToCart }: Props) => {
-  if (!product || !Array.isArray(product.images)) return null;
+  if (!product || !Array.isArray(product.images) || product.images.length === 0) return null;
 
   const sizes = Array.isArray(product.sizes) && product.sizes.length > 0 ? product.sizes : ["S", "M", "L", "XL", "2XL"];
 
@@ -22,13 +22,31 @@ const ProductCard = ({ product, onAddToCart }: Props) => {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition duration-300 overflow-hidden">
-      {/* 🔥 IMAGE SECTION – PROFESSIONAL RATIO */}
-      <div className="grid grid-cols-2 gap-2 p-3">
-        {product.images.map((img: string, index: number) => (
-          <div key={index} className="aspect-square overflow-hidden rounded-xl">
-            <img src={img} alt={`${product.name}-${index}`} className="w-full h-full object-cover" />
+      {/* 🔥 PROFESSIONAL IMAGE LAYOUT */}
+      <div className="p-4 space-y-4">
+        {/* Main Big Image */}
+        <div className="aspect-square overflow-hidden rounded-2xl">
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="w-full h-full object-cover hover:scale-105 transition duration-300"
+          />
+        </div>
+
+        {/* Remaining Images Grid */}
+        {product.images.length > 1 && (
+          <div className="grid grid-cols-2 gap-3">
+            {product.images.slice(1).map((img, index) => (
+              <div key={index} className="aspect-square overflow-hidden rounded-xl">
+                <img
+                  src={img}
+                  alt={`${product.name}-${index}`}
+                  className="w-full h-full object-cover hover:scale-105 transition duration-300"
+                />
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </div>
 
       {/* PRODUCT INFO */}
@@ -37,7 +55,7 @@ const ProductCard = ({ product, onAddToCart }: Props) => {
 
         <p className="text-gray-700 mt-1 font-medium">₹ {product.price}</p>
 
-        {/* SIZE SECTION – PROFESSIONAL STYLE */}
+        {/* SIZE SECTION */}
         <div className="mt-4">
           <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Select Size</p>
 
@@ -46,8 +64,7 @@ const ProductCard = ({ product, onAddToCart }: Props) => {
               <button
                 key={size}
                 onClick={() => setSelectedSize(size)}
-                className={`px-3 py-1 text-sm border rounded-md transition
-                ${
+                className={`px-3 py-1 text-sm border rounded-md transition ${
                   selectedSize === size ? "bg-black text-white border-black" : "bg-white text-black hover:border-black"
                 }`}
               >
