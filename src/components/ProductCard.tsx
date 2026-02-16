@@ -9,46 +9,53 @@ type Product = {
 };
 
 type Props = {
-  product: Product;
-  onAddToCart: (product: Product, size: string) => void;
+  products: Product[];
+  onAddToCart: (product: Product, size: string, image: string) => void;
 };
 
-const ProductCard = ({ product, onAddToCart }: Props) => {
-  if (!product || !Array.isArray(product.images) || product.images.length === 0) {
-    return null;
-  }
+const ProductCard = ({ products, onAddToCart }: Props) => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {products.map((product) =>
+        product.images.map((img, index) => (
+          <VariantCard key={`${product.id}-${index}`} product={product} image={img} onAddToCart={onAddToCart} />
+        )),
+      )}
+    </div>
+  );
+};
 
+type VariantProps = {
+  product: Product;
+  image: string;
+  onAddToCart: (product: Product, size: string, image: string) => void;
+};
+
+const VariantCard = ({ product, image, onAddToCart }: VariantProps) => {
   const sizes = Array.isArray(product.sizes) && product.sizes.length > 0 ? product.sizes : ["S", "M", "L", "XL", "2XL"];
 
   const [selectedSize, setSelectedSize] = useState(sizes[0]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition duration-300 overflow-hidden">
-      {/* 🔥 MEDIUM PROFESSIONAL IMAGE (4:5 RATIO) */}
-      <div className="bg-gray-100">
-        <div className="aspect-[4/5] flex items-center justify-center">
-          <img src={product.images[0]} alt={product.name} className="max-w-full max-h-full object-contain" />
-        </div>
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition duration-300 overflow-hidden">
+      {/* MEDIUM RATIO IMAGE */}
+      <div className="aspect-[4/5] bg-gray-100 flex items-center justify-center">
+        <img src={image} alt={product.name} className="max-w-full max-h-full object-contain" />
       </div>
 
-      {/* PRODUCT DETAILS */}
       <div className="p-4">
-        {/* NAME */}
-        <h2 className="text-lg font-semibold tracking-tight">{product.name}</h2>
+        <h2 className="text-base font-semibold">{product.name}</h2>
 
-        {/* PRICE */}
-        <p className="text-gray-700 mt-1 font-medium">₹ {product.price}</p>
+        <p className="text-gray-700 mt-1">₹ {product.price}</p>
 
-        {/* SIZE SECTION */}
-        <div className="mt-4">
-          <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Select Size</p>
-
+        {/* SIZE */}
+        <div className="mt-3">
           <div className="flex flex-wrap gap-2">
             {sizes.map((size) => (
               <button
                 key={size}
                 onClick={() => setSelectedSize(size)}
-                className={`px-3 py-1 text-sm border rounded-md transition ${
+                className={`px-3 py-1 text-sm border rounded transition ${
                   selectedSize === size ? "bg-black text-white border-black" : "bg-white text-black hover:border-black"
                 }`}
               >
@@ -60,8 +67,8 @@ const ProductCard = ({ product, onAddToCart }: Props) => {
 
         {/* ADD TO CART */}
         <button
-          onClick={() => onAddToCart(product, selectedSize)}
-          className="mt-5 w-full bg-black text-white py-2 rounded-lg hover:opacity-90 transition"
+          onClick={() => onAddToCart(product, selectedSize, image)}
+          className="mt-4 w-full bg-black text-white py-2 rounded hover:opacity-90 transition"
         >
           Add to Cart
         </button>
