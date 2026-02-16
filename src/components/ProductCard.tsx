@@ -14,53 +14,57 @@ type Props = {
 };
 
 const ProductCard = ({ product, onAddToCart }: Props) => {
-  // Safety check
   if (!product || !Array.isArray(product.images)) return null;
 
-  // Final safe sizes logic (2XL included)
   const sizes = Array.isArray(product.sizes) && product.sizes.length > 0 ? product.sizes : ["S", "M", "L", "XL", "2XL"];
 
   const [selectedSize, setSelectedSize] = useState(sizes[0]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-5">
-      {/* 🔥 SHOW ALL PRODUCT IMAGES (NO LIMIT) */}
-      <div className="flex flex-col gap-4 mb-5">
+    <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition duration-300 overflow-hidden">
+      {/* 🔥 IMAGE SECTION – PROFESSIONAL RATIO */}
+      <div className="grid grid-cols-2 gap-2 p-3">
         {product.images.map((img: string, index: number) => (
-          <img
-            key={index}
-            src={img}
-            alt={`${product.name}-${index}`}
-            className="w-full h-auto object-cover rounded-xl"
-          />
+          <div key={index} className="aspect-square overflow-hidden rounded-xl">
+            <img src={img} alt={`${product.name}-${index}`} className="w-full h-full object-cover" />
+          </div>
         ))}
       </div>
 
-      {/* Product Info */}
-      <h2 className="text-xl font-semibold">{product.name}</h2>
+      {/* PRODUCT INFO */}
+      <div className="px-4 pb-5">
+        <h2 className="text-lg font-semibold tracking-tight">{product.name}</h2>
 
-      <p className="text-gray-600 mt-2">₹ {product.price}</p>
+        <p className="text-gray-700 mt-1 font-medium">₹ {product.price}</p>
 
-      {/* Sizes */}
-      <div className="flex gap-2 mt-4 flex-wrap">
-        {sizes.map((size) => (
-          <button
-            key={size}
-            onClick={() => setSelectedSize(size)}
-            className={`px-4 py-1 border rounded-lg ${selectedSize === size ? "bg-black text-white" : "bg-white"}`}
-          >
-            {size}
-          </button>
-        ))}
+        {/* SIZE SECTION – PROFESSIONAL STYLE */}
+        <div className="mt-4">
+          <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Select Size</p>
+
+          <div className="flex flex-wrap gap-2">
+            {sizes.map((size) => (
+              <button
+                key={size}
+                onClick={() => setSelectedSize(size)}
+                className={`px-3 py-1 text-sm border rounded-md transition
+                ${
+                  selectedSize === size ? "bg-black text-white border-black" : "bg-white text-black hover:border-black"
+                }`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ADD TO CART */}
+        <button
+          onClick={() => onAddToCart(product, selectedSize)}
+          className="mt-5 w-full bg-black text-white py-2 rounded-lg hover:opacity-90 transition"
+        >
+          Add to Cart
+        </button>
       </div>
-
-      {/* Add To Cart */}
-      <button
-        onClick={() => onAddToCart(product, selectedSize)}
-        className="mt-5 w-full bg-black text-white py-3 rounded-xl hover:opacity-90"
-      >
-        Add to Cart
-      </button>
     </div>
   );
 };
