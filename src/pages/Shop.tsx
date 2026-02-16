@@ -6,62 +6,61 @@ interface Product {
   id: string;
   name: string;
   price: number;
+  sizes: { [key: string]: number }; // object from Firestore
   images: string[];
-  sizes: { [key: string]: number };
 }
 
 interface CardItem {
-  id: string;
+  productId: string;
   name: string;
   price: number;
   image: string;
-  sizes: string[];
+  sizes: { [key: string]: number };
 }
 
 const Shop = () => {
   const [cards, setCards] = useState<CardItem[]>([]);
-  const [selectedSizes, setSelectedSizes] = useState<{ [key: string]: string }>({});
+  const [selectedSizes, setSelectedSizes] = useState<{
+    [key: string]: string;
+  }>({});
 
-  // 🔥 Fetch products from Firestore
   useEffect(() => {
     const fetchProducts = async () => {
       const snap = await getDocs(collection(db, "products"));
 
-      const allCards: CardItem[] = [];
+      const tempCards: CardItem[] = [];
 
       snap.docs.forEach((doc) => {
         const data = doc.data() as Product;
 
         if (data.images && Array.isArray(data.images)) {
-          data.images.forEach((img, index) => {
-            allCards.push({
-              id: doc.id + "_" + index,
+          data.images.forEach((img: string, index: number) => {
+            tempCards.push({
+              productId: doc.id,
               name: data.name,
               price: data.price,
               image: img,
-              sizes: Object.keys(data.sizes || {}),
+              sizes: data.sizes || {},
             });
           });
         }
       });
 
-      setCards(allCards);
+      setCards(tempCards);
     };
 
     fetchProducts();
   }, []);
 
-  // 📏 Size select
-  const handleSizeChange = (cardId: string, size: string) => {
+  const handleSizeChange = (key: string, size: string) => {
     setSelectedSizes((prev) => ({
       ...prev,
-      [cardId]: size,
+      [key]: size,
     }));
   };
 
-  // 🛒 Add to Cart
-  const handleAddToCart = (card: CardItem) => {
-    const selectedSize = selectedSizes[card.id];
+  const handleAddToCart = (card: CardItem, key: string) => {
+    const selectedSize = selectedSizes[key];
 
     if (!selectedSize) {
       alert("Please select size");
@@ -69,64 +68,61 @@ const Shop = () => {
     }
 
     const cartItem = {
-      id: card.id,
-      name: card.name,
-      price: card.price,
-      image: card.image,
+      ...card,
       size: selectedSize,
+      quantity: 1,
     };
 
-    const existing = localStorage.getItem("cart");
-    const cart = existing ? JSON.parse(existing) : [];
+    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-    cart.push(cartItem);
-    localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem("cart", JSON.stringify([...existingCart, cartItem]));
 
-    alert("Added to cart!");
+    alert("Added to cart");
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
-      <h2 className="text-2xl font-bold mb-8">Shop</h2>
+    <div className="container mx-auto px-6 py-10">
+      <h1 className="text-3xl font-bold mb-8 text-center">Shop Collection</h1>
 
-      {/* 🔲 3 + 3 Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {cards.map((card) => (
-          <div key={card.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-            {/* 🖼 Image */}
-            <div className="w-full h-72 overflow-hidden rounded-md mb-4">
-              <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+        {cards.map((card, index) => {
+          const key = card.productId + "_" + index;
+
+          return (
+            <div key={key} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition">
+              {/* Image */}
+              <img src={card.image} alt={card.name} className="w-full h-72 object-cover rounded-md mb-4" />
+
+              {/* Name */}
+              <h2 className="text-lg font-semibold">{card.name}</h2>
+
+              {/* Price */}
+              <p className="text-gray-600 mb-3">₹{card.price}</p>
+
+              {/* Size Select */}
+              <select
+                className="w-full border p-2 mb-3 rounded"
+                value={selectedSizes[key] || ""}
+                onChange={(e) => handleSizeChange(key, e.target.value)}
+              >
+                <option value="">Select Size</option>
+                {Object.keys(card.sizes || {}).map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+
+              {/* Add to Cart */}
+              <button
+                onClick={() => handleAddToCart(card, key)}
+                className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
+              >
+                ADD TO CART
+              </button>
             </div>
-
-            {/* 🏷 Name */}
-            <h3 className="font-semibold text-lg">{card.name}</h3>
-
-            {/* 💰 Price */}
-            <p className="text-gray-600 mb-3">₹{card.price}</p>
-
-            {/* 📏 Size Select */}
-            <select
-              className="w-full border p-2 mb-3 rounded"
-              value={selectedSizes[card.id] || ""}
-              onChange={(e) => handleSizeChange(card.id, e.target.value)}
-            >
-              <option value="">Select Size</option>
-              {card.sizes.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-
-            {/* 🛒 Button */}
-            <button
-              onClick={() => handleAddToCart(card)}
-              className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
-            >
-              Add to Cart
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
