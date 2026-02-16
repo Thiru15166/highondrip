@@ -1,55 +1,43 @@
 import { useState } from "react";
 
-type Props = {
-  product?: any;
-  onAddToCart?: (product: any, size: string) => void;
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+  images: string[];
 };
 
-const ProductCard = ({ product, onAddToCart }: Props) => {
-  // 🛑 If product is undefined, stop rendering
-  if (!product) return null;
+type Props = {
+  product: Product;
+};
 
-  const sizes = Array.isArray(product.sizes) ? product.sizes : ["S", "M", "L", "XL", "2XL"];
+const ProductCard = ({ product }: Props) => {
+  const [hovered, setHovered] = useState(false);
 
-  const [selectedSize, setSelectedSize] = useState(sizes[0]);
+  // Safety check
+  if (!product || !product.images || product.images.length === 0) {
+    return null;
+  }
 
-  const handleAdd = () => {
-    if (!onAddToCart) return;
-
-    onAddToCart(product, selectedSize);
-  };
+  // Decide which image to show
+  const displayImage = hovered && product.images.length > 1 ? product.images[1] : product.images[0];
 
   return (
-    <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-      {/* SAFE IMAGE */}
-      {product.image && (
-        <img src={product.image} alt={product.name || "Product"} className="w-full h-72 object-cover" />
-      )}
+    <div
+      className="bg-white rounded-2xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Image */}
+      <div className="w-full h-72 overflow-hidden">
+        <img src={displayImage} alt={product.name} className="w-full h-full object-cover transition duration-300" />
+      </div>
 
+      {/* Details */}
       <div className="p-4">
-        <h2 className="text-lg font-semibold">{product.name || "No Name"}</h2>
+        <h2 className="text-lg font-semibold">{product.name}</h2>
 
-        <p className="text-gray-600 mt-1">₹{product.price || 0}</p>
-
-        {/* Size Dropdown */}
-        <select
-          value={selectedSize}
-          onChange={(e) => setSelectedSize(e.target.value)}
-          className="mt-3 w-full border p-2 rounded-lg"
-        >
-          {sizes.map((size: string) => (
-            <option key={size} value={size}>
-              {size}
-            </option>
-          ))}
-        </select>
-
-        <button
-          onClick={handleAdd}
-          className="mt-4 w-full bg-black text-white py-2 rounded-xl hover:bg-gray-800 transition"
-        >
-          Add to Cart
-        </button>
+        <p className="text-gray-600 mt-1">₹ {product.price}</p>
       </div>
     </div>
   );
