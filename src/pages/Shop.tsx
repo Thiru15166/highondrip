@@ -1,84 +1,65 @@
-import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
-import ProductCard from "@/components/ProductCard";
+import { products } from "@/data/products";
 import FadeInSection from "@/components/FadeInSection";
-import { products as localProducts } from "@/data/products";
-
-type FirebaseProduct = {
-  id: string;
-  name: string;
-  price: number;
-  images?: string[];
-  image?: string;
-  sizes?: string[];
-  edition?: number;
-  totalEdition?: number;
-};
 
 const Shop = () => {
-  const [firebaseProducts, setFirebaseProducts] = useState<FirebaseProduct[]>([]);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const snapshot = await getDocs(collection(db, "products"));
-        const data: FirebaseProduct[] = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as Omit<FirebaseProduct, "id">),
-        }));
-        setFirebaseProducts(data);
-      } catch {
-        // Firebase may not be available, fall back to local
-      }
-    };
-    fetchProducts();
-  }, []);
-
-  // Merge: show firebase products if available, else local
-  const displayProducts = firebaseProducts.length > 0
-    ? firebaseProducts.map((p) => ({
-        id: p.id,
-        name: p.name,
-        price: p.price,
-        image: p.images?.[0] || p.image || "",
-        edition: p.edition,
-        totalEdition: p.totalEdition,
-      }))
-    : localProducts.map((p) => ({
-        id: p.id,
-        name: p.name,
-        price: p.price,
-        image: p.image,
-        edition: p.edition,
-        totalEdition: p.totalEdition,
-      }));
+  const handleAddToCart = (product: any, size: string) => {
+    const existing = JSON.parse(localStorage.getItem("cart") || "[]");
+    existing.push({ id: product.id, name: product.name, price: product.price, size, image: product.image });
+    localStorage.setItem("cart", JSON.stringify(existing));
+    alert(`${product.name} (${size}) added to cart!`);
+  };
 
   return (
     <Layout>
-      <section className="max-w-[1400px] mx-auto px-6 lg:px-10 py-[var(--section-gap)]">
-        <FadeInSection>
-          <div className="mb-16">
-            <p className="text-label text-muted-foreground mb-4">Browse</p>
-            <h1 className="text-display-l text-foreground">Collection</h1>
-          </div>
-        </FadeInSection>
+      <FadeInSection>
+        <section className="container mx-auto px-6 lg:px-10 py-20 lg:py-32">
+          <h1 className="font-display text-5xl lg:text-7xl text-foreground uppercase tracking-wider mb-16 text-center">
+            Collection
+          </h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {products.map((product) => {
+              const sizes = product.sizes || ["S", "M", "L", "XL"];
+              const [selectedSize, setSelectedSize] = useState(sizes[0]);
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-          {displayProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              image={product.image}
-              edition={product.edition}
-              totalEdition={product.totalEdition}
-            />
-          ))}
-        </div>
-      </section>
+              return (
+                <div key={product.id} className="group">
+                  <Link to={`/product/${product.id}`} className="block relative overflow-hidden aspect-[3/4]">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  </Link>
+                  <div className="mt-4 space-y-2">
+                    <h2 className="font-display text-lg tracking-wider uppercase text-foreground">{product.name}</h2>
+                    <p className="text-muted-foreground text-sm font-sans">${product.price}</p>
+                    <select
+                      value={selectedSize}
+                      onChange={(e) => setSelectedSize(e.target.value)}
+                      className="w-full border border-border bg-background text-foreground p-2 text-sm font-sans"
+                    >
+                      {sizes.map((size: string) => (
+                        <option key={size} value={size}>{size}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => handleAddToCart(product, selectedSize)}
+                      className="w-full py-3 bg-foreground text-background text-[10px] tracking-[0.3em] uppercase font-sans hover:bg-neon hover:text-foreground transition-all duration-300"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </FadeInSection>
     </Layout>
   );
 };

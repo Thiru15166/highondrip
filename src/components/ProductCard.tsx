@@ -1,50 +1,57 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
 
 type Props = {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  edition?: number;
-  totalEdition?: number;
+  product?: any;
+  onAddToCart?: (product: any, size: string) => void;
 };
 
-const ProductCard = ({ id, name, price, image, edition, totalEdition }: Props) => {
-  return (
-    <Link to={`/product/${id}`} className="group block">
-      {/* Square image container */}
-      <div className="aspect-square overflow-hidden bg-secondary mb-4">
-        {image ? (
-          <img
-            src={image}
-            alt={name}
-            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-label">
-            No Image
-          </div>
-        )}
-      </div>
+const ProductCard = ({ product, onAddToCart }: Props) => {
+  // 🛑 If product is undefined, stop rendering
+  if (!product) return null;
 
-      {/* Info */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="font-display text-lg text-foreground leading-tight">
-            {name}
-          </h3>
-          {edition && totalEdition && (
-            <p className="text-label text-muted-foreground mt-1">
-              {edition} / {totalEdition}
-            </p>
-          )}
-        </div>
-        <p className="text-sm font-sans text-foreground whitespace-nowrap">
-          ${price}
-        </p>
+  const sizes = Array.isArray(product.sizes) ? product.sizes : ["S", "M", "L", "XL", "2XL"];
+
+  const [selectedSize, setSelectedSize] = useState(sizes[0]);
+
+  const handleAdd = () => {
+    if (!onAddToCart) return;
+
+    onAddToCart(product, selectedSize);
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+      {/* SAFE IMAGE */}
+      {product.image && (
+        <img src={product.image} alt={product.name || "Product"} className="w-full h-72 object-cover" />
+      )}
+
+      <div className="p-4">
+        <h2 className="text-lg font-semibold">{product.name || "No Name"}</h2>
+
+        <p className="text-gray-600 mt-1">₹{product.price || 0}</p>
+
+        {/* Size Dropdown */}
+        <select
+          value={selectedSize}
+          onChange={(e) => setSelectedSize(e.target.value)}
+          className="mt-3 w-full border p-2 rounded-lg"
+        >
+          {sizes.map((size: string) => (
+            <option key={size} value={size}>
+              {size}
+            </option>
+          ))}
+        </select>
+
+        <button
+          onClick={handleAdd}
+          className="mt-4 w-full bg-black text-white py-2 rounded-xl hover:bg-gray-800 transition"
+        >
+          Add to Cart
+        </button>
       </div>
-    </Link>
+    </div>
   );
 };
 

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/firebase";
+import { auth } from "../firebase";
 import { useNavigate, Link } from "react-router-dom";
-import Layout from "@/components/layout/Layout";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -13,10 +12,12 @@ const Register = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     if (!email || !password) {
       setError("Please fill all fields");
       return;
     }
+
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       alert("Account created successfully");
@@ -27,54 +28,42 @@ const Register = () => {
   };
 
   return (
-    <Layout>
-      <section className="min-h-[70vh] flex items-center justify-center px-6">
-        <div className="w-full max-w-sm">
-          <h1 className="text-display-l text-foreground mb-12 text-center">
-            Create Account
-          </h1>
+    <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="w-full max-w-sm p-6 border rounded-lg shadow">
+        <h1 className="text-2xl font-bold mb-4 text-center">Create Account</h1>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="text-label text-muted-foreground mb-2 block">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-transparent border-b border-border py-3 text-body text-foreground focus:outline-none focus:border-foreground transition-colors duration-300"
-              />
-            </div>
-            <div>
-              <label className="text-label text-muted-foreground mb-2 block">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border-b border-border py-3 text-body text-foreground focus:outline-none focus:border-foreground transition-colors duration-300"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full border p-2 rounded"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full border p-2 rounded"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-            <button
-              type="submit"
-              className="w-full py-4 bg-foreground text-primary-foreground text-label tracking-[0.3em] transition-all duration-500 hover:opacity-90"
-            >
-              Register
-            </button>
-          </form>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
 
-          <p className="text-center mt-8">
-            <Link
-              to="/login"
-              className="text-label text-muted-foreground hover:text-foreground transition-colors duration-300"
-            >
-              Already have an account? Sign In
+          <button type="submit" className="w-full bg-black text-white py-2 rounded">
+            Register
+          </button>
+
+          <p className="text-sm text-center mt-2">
+            Already have an account?{" "}
+            <Link to="/login" className="underline">
+              Login
             </Link>
           </p>
-        </div>
-      </section>
-    </Layout>
+        </form>
+      </div>
+    </div>
   );
 };
 
