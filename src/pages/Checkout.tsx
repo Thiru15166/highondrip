@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "@/firebase";
 import Layout from "@/components/layout/Layout";
+import FadeInSection from "@/components/FadeInSection";
 
 interface CartItem {
   id: string;
@@ -18,10 +19,8 @@ const Checkout = () => {
   const [address, setAddress] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
   const navigate = useNavigate();
 
-  // Load cart from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("cart");
     if (stored) {
@@ -40,10 +39,8 @@ const Checkout = () => {
       setError("Please fill all fields");
       return;
     }
-
     try {
       setSubmitting(true);
-
       await addDoc(collection(db, "orders"), {
         customerName: name,
         phone,
@@ -52,7 +49,6 @@ const Checkout = () => {
         total,
         createdAt: new Date(),
       });
-
       localStorage.removeItem("cart");
       alert("Order placed successfully!");
       navigate("/");
@@ -66,64 +62,70 @@ const Checkout = () => {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto py-10 px-4">
-        <h1 className="text-2xl font-bold mb-6">Checkout</h1>
+      <FadeInSection>
+        <section className="max-w-2xl mx-auto px-6 lg:px-10 py-[var(--section-gap)]">
+          <p className="text-label text-muted-foreground mb-4">Complete Your</p>
+          <h1 className="text-display-l text-foreground mb-16">Order</h1>
 
-        {/* Order Summary */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
-
-          {cartItems.map((item, index) => (
-            <div key={index} className="flex justify-between mb-2">
-              <span>
-                {item.name} - {item.size}
-              </span>
-              <span>₹{item.price}</span>
+          {/* Order summary */}
+          <div className="mb-16">
+            <p className="text-label text-muted-foreground mb-6">Summary</p>
+            {cartItems.map((item, index) => (
+              <div key={index} className="flex justify-between py-3 border-b border-border">
+                <span className="text-body text-foreground">
+                  {item.name} — {item.size}
+                </span>
+                <span className="text-sm font-sans text-foreground">${item.price}</span>
+              </div>
+            ))}
+            <div className="flex justify-between pt-6">
+              <span className="font-display text-xl text-foreground">Total</span>
+              <span className="font-display text-xl text-foreground">${total}</span>
             </div>
-          ))}
-
-          <div className="border-t mt-4 pt-4 font-semibold flex justify-between">
-            <span>Total</span>
-            <span>₹{total}</span>
           </div>
-        </div>
 
-        {/* Customer Form */}
-        <div className="bg-white rounded-2xl shadow-md p-6">
-          <input
-            type="text"
-            placeholder="Full Name"
-            className="w-full border p-3 rounded-lg mb-4"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+          {/* Form */}
+          <div className="space-y-6">
+            <div>
+              <label className="text-label text-muted-foreground mb-2 block">Full Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full bg-transparent border-b border-border py-3 text-body text-foreground focus:outline-none focus:border-foreground transition-colors duration-300"
+              />
+            </div>
+            <div>
+              <label className="text-label text-muted-foreground mb-2 block">Phone</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full bg-transparent border-b border-border py-3 text-body text-foreground focus:outline-none focus:border-foreground transition-colors duration-300"
+              />
+            </div>
+            <div>
+              <label className="text-label text-muted-foreground mb-2 block">Address</label>
+              <textarea
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                rows={3}
+                className="w-full bg-transparent border-b border-border py-3 text-body text-foreground focus:outline-none focus:border-foreground transition-colors duration-300 resize-none"
+              />
+            </div>
 
-          <input
-            type="tel"
-            placeholder="Phone Number"
-            className="w-full border p-3 rounded-lg mb-4"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
+            {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <textarea
-            placeholder="Full Address"
-            className="w-full border p-3 rounded-lg mb-4"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-
-          {error && <p className="text-red-500 mb-4">{error}</p>}
-
-          <button
-            onClick={handleSubmit}
-            disabled={submitting}
-            className="w-full bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition"
-          >
-            {submitting ? "Placing Order..." : "Confirm Order"}
-          </button>
-        </div>
-      </div>
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="w-full mt-8 py-4 bg-foreground text-primary-foreground text-label tracking-[0.3em] transition-all duration-500 hover:opacity-90 disabled:opacity-40"
+            >
+              {submitting ? "Placing Order..." : "Confirm Order"}
+            </button>
+          </div>
+        </section>
+      </FadeInSection>
     </Layout>
   );
 };

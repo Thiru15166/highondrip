@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
+import FadeInSection from "@/components/FadeInSection";
 
 interface CartItem {
   id: string;
@@ -36,14 +37,14 @@ const Cart = () => {
   if (cartItems.length === 0) {
     return (
       <Layout>
-        <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
-          <button
-            onClick={() => navigate("/shop")}
-            className="mt-4 bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition"
+        <div className="min-h-[60vh] flex flex-col items-center justify-center px-6">
+          <h1 className="text-display-l text-foreground mb-6">Cart is Empty</h1>
+          <Link
+            to="/shop"
+            className="text-label text-muted-foreground hover:text-foreground transition-colors duration-300"
           >
-            Browse Collection
-          </button>
+            Continue Shopping
+          </Link>
         </div>
       </Layout>
     );
@@ -51,42 +52,47 @@ const Cart = () => {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto px-4 py-12">
-        <h1 className="text-2xl font-bold mb-8">Your Cart</h1>
+      <FadeInSection>
+        <section className="max-w-3xl mx-auto px-6 lg:px-10 py-[var(--section-gap)]">
+          <p className="text-label text-muted-foreground mb-4">Your</p>
+          <h1 className="text-display-l text-foreground mb-16">Cart</h1>
 
-        <div className="space-y-4">
-          {cartItems.map((item, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between border border-border rounded-lg p-4 bg-card"
+          <div className="space-y-0">
+            {cartItems.map((item, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between py-6 border-b border-border"
+              >
+                <div>
+                  <p className="font-display text-lg text-foreground">{item.name}</p>
+                  <p className="text-label text-muted-foreground mt-1">Size: {item.size}</p>
+                </div>
+                <div className="flex items-center gap-8">
+                  <p className="text-sm font-sans text-foreground">${item.price}</p>
+                  <button
+                    onClick={() => removeItem(index)}
+                    className="text-label text-muted-foreground hover:text-foreground transition-colors duration-300"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 flex items-center justify-between">
+            <p className="font-display text-2xl text-foreground">
+              ${totalAmount}
+            </p>
+            <button
+              onClick={() => navigate("/checkout")}
+              className="px-12 py-4 bg-foreground text-primary-foreground text-label tracking-[0.3em] transition-all duration-500 hover:opacity-90"
             >
-              <div>
-                <p className="font-semibold text-card-foreground">{item.name}</p>
-                <p className="text-sm text-muted-foreground">Size: {item.size}</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <p className="font-medium text-card-foreground">₹{item.price}</p>
-                <button
-                  onClick={() => removeItem(index)}
-                  className="text-sm text-destructive hover:underline"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-8 border-t border-border pt-6 flex items-center justify-between">
-          <p className="text-lg font-bold">Total: ₹{totalAmount}</p>
-          <button
-            onClick={() => navigate("/checkout")}
-            className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary/90 transition"
-          >
-            Place Order
-          </button>
-        </div>
-      </div>
+              Checkout
+            </button>
+          </div>
+        </section>
+      </FadeInSection>
     </Layout>
   );
 };

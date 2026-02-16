@@ -1,34 +1,41 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
-    <footer className="bg-foreground">
-      <div className="container mx-auto px-6 lg:px-10 py-16 lg:py-20">
-        <div className="flex flex-col items-center text-center">
-          <p className="font-display text-3xl lg:text-4xl text-background tracking-wider uppercase mb-6">
+    <footer className="border-t border-border">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-[var(--section-gap)]">
+        {/* Brand statement */}
+        <div className="max-w-lg">
+          <p className="font-display text-2xl md:text-3xl text-foreground leading-tight mb-6">
             High on Drip
           </p>
-          <p className="text-background/30 text-xs font-sans leading-relaxed max-w-sm">
-            Premium essentials for those who understand that true style speaks quietly. Limited drops, unlimited confidence.
+          <p className="text-body text-muted-foreground max-w-sm">
+            Premium essentials for those who understand that true style speaks quietly.
+            Limited drops, unlimited confidence.
           </p>
         </div>
 
-        <div className="border-t border-background/10 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[10px] text-background/20 tracking-[0.2em] uppercase font-sans">
-            © 2026 HIGH ON DRIP
+        {/* Divider + bottom row */}
+        <div className="border-t border-border mt-16 pt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <nav className="flex gap-8">
+            {[
+              { label: "Shop", to: "/shop" },
+              { label: "Collection", to: "/shop" },
+              { label: "Account", to: "/login" },
+            ].map((link) => (
+              <Link
+                key={link.label}
+                to={link.to}
+                className="text-label text-muted-foreground hover:text-foreground transition-colors duration-300"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <p className="text-label text-muted-foreground">
+            © 2026 High on Drip
           </p>
-          <div className="flex gap-6">
-            <a
-              href="#"
-              className="text-[10px] text-background/30 tracking-[0.2em] uppercase font-sans transition-opacity duration-300 hover:text-background/60"
-            >
-              Instagram
-            </a>
-            <a
-              href="#"
-              className="text-[10px] text-background/30 tracking-[0.2em] uppercase font-sans transition-opacity duration-300 hover:text-background/60"
-            >
-              Twitter
-            </a>
-          </div>
         </div>
       </div>
     </footer>
