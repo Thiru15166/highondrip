@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db, auth } from "@/firebase";
-import Layout from "@/components/layout/Layout";
+import { auth } from "@/firebase";
 
 interface CartItem {
-  id: string;
+  productId: string;
   name: string;
-  size: string;
   price: number;
+  image: string;
+  size: string;
+}
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
 }
 
 const Checkout = () => {
@@ -17,123 +21,148 @@ const Checkout = () => {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   // Load cart from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("cart");
     if (stored) {
-      try {
-        setCartItems(JSON.parse(stored));
-      } catch {
-        setCartItems([]);
-      }
+      setCartItems(JSON.parse(stored));
     }
   }, []);
 
   const total = cartItems.reduce((sum, item) => sum + item.price, 0);
 
-  const handleSubmit = async () => {
+  const handlePayment = async () => {
     setError("");
 
     if (!name || !phone || !address) {
-      setError("Please fill all fields");
+      setError("Please fill all details");
       return;
     }
 
     if (!auth.currentUser) {
-      setError("Please login to place order");
+      setError("Please login first");
       return;
     }
 
     if (cartItems.length === 0) {
-      setError("Your cart is empty");
+      setError("Cart is empty");
       return;
     }
 
     try {
-      setSubmitting(true);
+      setLoading(true);
 
-      await addDoc(collection(db, "orders"), {
-        userId: auth.currentUser.uid, // 🔥 Required for rules
-        customerName: name,
-        phone,
-        address,
-        items: cartItems,
-        total,
-        createdAt: serverTimestamp(),
+      // Create order in backend
+      const response = await fetch("https://mensmass-backend.onrender.com/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: total,
+        }),
       });
 
-      localStorage.removeItem("cart");
+      const data = await response.json();
 
-      alert("Order placed successfully!");
+      const options = {
+        key: "rzp_test_SG1hClbl38B0a4",
+        amount: data.amount,
+        currency: "INR",
+        name: "Mensmass",
+        description: "Order Payment",
+        order_id: data.id,
+        handler: async function (response: any) {
+          // Save order after success
+          await fetch("https://mensmass-backend.onrender.com/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              cartItems,
+              name,
+              phone,
+              address,
+              userId: auth.currentUser?.uid,
+            }),
+          });
 
-      navigate("/");
+          alert("Payment Successful ✅");
+
+          localStorage.removeItem("cart");
+          window.location.href = "/";
+        },
+        prefill: {
+          name,
+          contact: phone,
+        },
+        theme: {
+          color: "#000000",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (err) {
-      console.error("ORDER ERROR:", err);
-      setError("Failed to place order. Please try again.");
+      setError("Payment failed");
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Layout>
-      <div className="max-w-lg mx-auto py-12 px-4">
-        <h1 className="text-2xl font-semibold mb-6">Checkout</h1>
+    <div style={{ maxWidth: 600, margin: "50px auto" }}>
+      <h2>Checkout</h2>
 
-        <div className="mb-6 border p-4">
-          <h2 className="font-medium mb-2">Order Summary</h2>
-          {cartItems.map((item) => (
-            <div key={item.id} className="flex justify-between mb-2">
-              <span>
-                {item.name} - {item.size}
-              </span>
-              <span>₹{item.price}</span>
-            </div>
-          ))}
-          <div className="flex justify-between font-semibold mt-4">
-            <span>Total</span>
-            <span>₹{total}</span>
-          </div>
+      {cartItems.map((item, index) => (
+        <div key={index} style={{ marginBottom: 10 }}>
+          {item.name} ({item.size}) - ₹{item.price}
         </div>
+      ))}
 
-        <input
-          type="text"
-          placeholder="Full Name"
-          className="w-full border p-3 mb-4"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+      <h3>Total: ₹{total}</h3>
 
-        <input
-          type="tel"
-          placeholder="Phone Number"
-          className="w-full border p-3 mb-4"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
+      <input
+        type="text"
+        placeholder="Full Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        style={{ width: "100%", marginBottom: 10 }}
+      />
 
-        <textarea
-          placeholder="Full Address"
-          className="w-full border p-3 mb-4"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-        />
+      <input
+        type="text"
+        placeholder="Phone"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        style={{ width: "100%", marginBottom: 10 }}
+      />
 
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+      <textarea
+        placeholder="Address"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+        style={{ width: "100%", marginBottom: 10 }}
+      />
 
-        <button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="w-full bg-black text-white py-3 hover:opacity-90 transition"
-        >
-          {submitting ? "Placing Order..." : "Confirm Order"}
-        </button>
-      </div>
-    </Layout>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <button
+        onClick={handlePayment}
+        disabled={loading}
+        style={{
+          width: "100%",
+          padding: 12,
+          background: "black",
+          color: "white",
+          border: "none",
+        }}
+      >
+        {loading ? "Processing..." : "Pay Now"}
+      </button>
+    </div>
   );
 };
 
