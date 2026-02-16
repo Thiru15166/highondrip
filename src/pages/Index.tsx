@@ -19,10 +19,28 @@ const Index = () => {
     fetchProducts();
   }, []);
 
+  const handleAddToCart = (product: any, size: string) => {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      size,
+      image: product.images?.[0] || "",
+    });
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Added to cart");
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard
+          key={product.id}
+          product={product}
+          image={product.images?.[0] || ""}
+          onAddToCart={handleAddToCart}
+        />
       ))}
     </div>
   );
