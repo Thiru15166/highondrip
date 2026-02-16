@@ -10,7 +10,7 @@ type Product = {
 
 type Props = {
   product: Product;
-  onAddToCart: (product: Product, size: string) => void;
+  onAddToCart: (product: Product, size: string, image: string) => void;
 };
 
 const ProductCard = ({ product, onAddToCart }: Props) => {
@@ -18,54 +18,59 @@ const ProductCard = ({ product, onAddToCart }: Props) => {
 
   const sizes = Array.isArray(product.sizes) && product.sizes.length > 0 ? product.sizes : ["S", "M", "L", "XL", "2XL"];
 
+  return (
+    <>
+      {product.images.map((img, index) => (
+        <VariantCard key={index} product={product} image={img} sizes={sizes} onAddToCart={onAddToCart} />
+      ))}
+    </>
+  );
+};
+
+type VariantProps = {
+  product: Product;
+  image: string;
+  sizes: string[];
+  onAddToCart: (product: Product, size: string, image: string) => void;
+};
+
+const VariantCard = ({ product, image, sizes, onAddToCart }: VariantProps) => {
   const [selectedSize, setSelectedSize] = useState(sizes[0]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition duration-300 p-5">
-      {/* 🔥 IMAGE GRID – FULL IMAGE SHOW (NO CROP) */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        {product.images.slice(0, 6).map((img, index) => (
-          <div
-            key={index}
-            className="aspect-square bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden"
-          >
-            <img src={img} alt={`${product.name}-${index}`} className="max-w-full max-h-full object-contain" />
+    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition duration-300 overflow-hidden">
+      <div className="aspect-[4/5] bg-gray-100 overflow-hidden">
+        <img src={image} alt={product.name} className="w-full h-full object-contain" />
+      </div>
+
+      <div className="p-4">
+        <h2 className="text-lg font-semibold">{product.name}</h2>
+
+        <p className="text-gray-700 mt-1 font-medium">₹ {product.price}</p>
+
+        <div className="mt-4">
+          <div className="flex flex-wrap gap-2">
+            {sizes.map((size) => (
+              <button
+                key={size}
+                onClick={() => setSelectedSize(size)}
+                className={`px-3 py-1 text-sm border rounded-md transition ${
+                  selectedSize === size ? "bg-black text-white border-black" : "bg-white text-black hover:border-black"
+                }`}
+              >
+                {size}
+              </button>
+            ))}
           </div>
-        ))}
-      </div>
-
-      {/* PRODUCT NAME */}
-      <h2 className="text-lg font-semibold tracking-tight">{product.name}</h2>
-
-      {/* PRICE */}
-      <p className="text-gray-700 mt-1 font-medium">₹ {product.price}</p>
-
-      {/* SIZE SECTION */}
-      <div className="mt-4">
-        <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Select Size</p>
-
-        <div className="flex flex-wrap gap-2">
-          {sizes.map((size) => (
-            <button
-              key={size}
-              onClick={() => setSelectedSize(size)}
-              className={`px-3 py-1 text-sm border rounded-md transition ${
-                selectedSize === size ? "bg-black text-white border-black" : "bg-white text-black hover:border-black"
-              }`}
-            >
-              {size}
-            </button>
-          ))}
         </div>
-      </div>
 
-      {/* ADD TO CART */}
-      <button
-        onClick={() => onAddToCart(product, selectedSize)}
-        className="mt-5 w-full bg-black text-white py-2 rounded-lg hover:opacity-90 transition"
-      >
-        Add to Cart
-      </button>
+        <button
+          onClick={() => onAddToCart(product, selectedSize, image)}
+          className="mt-5 w-full bg-black text-white py-2 rounded-lg hover:opacity-90 transition"
+        >
+          Add to Cart
+        </button>
+      </div>
     </div>
   );
 };
