@@ -14,74 +14,54 @@ type Props = {
 };
 
 const ProductCard = ({ product, onAddToCart }: Props) => {
-  if (!product || !Array.isArray(product.images) || product.images.length === 0) return null;
+  if (!product || !Array.isArray(product.images)) return null;
 
   const sizes = Array.isArray(product.sizes) && product.sizes.length > 0 ? product.sizes : ["S", "M", "L", "XL", "2XL"];
 
   const [selectedSize, setSelectedSize] = useState(sizes[0]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition duration-300 overflow-hidden">
-      {/* 🔥 PROFESSIONAL IMAGE LAYOUT */}
-      <div className="p-4 space-y-4">
-        {/* Main Big Image */}
-        <div className="aspect-square overflow-hidden rounded-2xl">
-          <img
-            src={product.images[0]}
-            alt={product.name}
-            className="w-full h-full object-cover hover:scale-105 transition duration-300"
-          />
-        </div>
-
-        {/* Remaining Images Grid */}
-        {product.images.length > 1 && (
-          <div className="grid grid-cols-2 gap-3">
-            {product.images.slice(1).map((img, index) => (
-              <div key={index} className="aspect-square overflow-hidden rounded-xl">
-                <img
-                  src={img}
-                  alt={`${product.name}-${index}`}
-                  className="w-full h-full object-cover hover:scale-105 transition duration-300"
-                />
-              </div>
-            ))}
+    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition duration-300 p-5">
+      {/* 🔥 IMAGE GRID – MAX 6 ONLY */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        {product.images.slice(0, 6).map((img, index) => (
+          <div key={index} className="aspect-square overflow-hidden rounded-xl">
+            <img src={img} alt={`${product.name}-${index}`} className="w-full h-full object-cover" />
           </div>
-        )}
+        ))}
       </div>
 
       {/* PRODUCT INFO */}
-      <div className="px-4 pb-5">
-        <h2 className="text-lg font-semibold tracking-tight">{product.name}</h2>
+      <h2 className="text-lg font-semibold tracking-tight">{product.name}</h2>
 
-        <p className="text-gray-700 mt-1 font-medium">₹ {product.price}</p>
+      <p className="text-gray-700 mt-1 font-medium">₹ {product.price}</p>
 
-        {/* SIZE SECTION */}
-        <div className="mt-4">
-          <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Select Size</p>
+      {/* SIZE SECTION */}
+      <div className="mt-4">
+        <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Select Size</p>
 
-          <div className="flex flex-wrap gap-2">
-            {sizes.map((size) => (
-              <button
-                key={size}
-                onClick={() => setSelectedSize(size)}
-                className={`px-3 py-1 text-sm border rounded-md transition ${
-                  selectedSize === size ? "bg-black text-white border-black" : "bg-white text-black hover:border-black"
-                }`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
+        <div className="flex flex-wrap gap-2">
+          {sizes.map((size) => (
+            <button
+              key={size}
+              onClick={() => setSelectedSize(size)}
+              className={`px-3 py-1 text-sm border rounded-md transition ${
+                selectedSize === size ? "bg-black text-white border-black" : "bg-white text-black hover:border-black"
+              }`}
+            >
+              {size}
+            </button>
+          ))}
         </div>
-
-        {/* ADD TO CART */}
-        <button
-          onClick={() => onAddToCart(product, selectedSize)}
-          className="mt-5 w-full bg-black text-white py-2 rounded-lg hover:opacity-90 transition"
-        >
-          Add to Cart
-        </button>
       </div>
+
+      {/* 🔥 SINGLE ADD TO CART BUTTON */}
+      <button
+        onClick={() => onAddToCart(product, selectedSize)}
+        className="mt-5 w-full bg-black text-white py-2 rounded-lg hover:opacity-90 transition"
+      >
+        Add to Cart
+      </button>
     </div>
   );
 };
