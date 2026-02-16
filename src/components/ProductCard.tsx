@@ -22,18 +22,22 @@ const ProductCard = ({ product, onAddToCart }: Props) => {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition duration-300 p-5">
-      {/* 🔥 IMAGE GRID – MAX 6 ONLY */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
+      {/* 🔥 IMAGE GRID – FULL IMAGE SHOW (NO CROP) */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
         {product.images.slice(0, 6).map((img, index) => (
-          <div key={index} className="aspect-square overflow-hidden rounded-xl">
-            <img src={img} alt={`${product.name}-${index}`} className="w-full h-full object-cover" />
+          <div
+            key={index}
+            className="aspect-square bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden"
+          >
+            <img src={img} alt={`${product.name}-${index}`} className="max-w-full max-h-full object-contain" />
           </div>
         ))}
       </div>
 
-      {/* PRODUCT INFO */}
+      {/* PRODUCT NAME */}
       <h2 className="text-lg font-semibold tracking-tight">{product.name}</h2>
 
+      {/* PRICE */}
       <p className="text-gray-700 mt-1 font-medium">₹ {product.price}</p>
 
       {/* SIZE SECTION */}
@@ -55,7 +59,7 @@ const ProductCard = ({ product, onAddToCart }: Props) => {
         </div>
       </div>
 
-      {/* 🔥 SINGLE ADD TO CART BUTTON */}
+      {/* ADD TO CART */}
       <button
         onClick={() => onAddToCart(product, selectedSize)}
         className="mt-5 w-full bg-black text-white py-2 rounded-lg hover:opacity-90 transition"
