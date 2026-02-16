@@ -1,66 +1,75 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import Layout from "@/components/layout/Layout";
-import { products } from "@/data/products";
-import FadeInSection from "@/components/FadeInSection";
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/firebase";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  sizes: string[];
+  images: string[];
+}
 
 const Shop = () => {
-  const handleAddToCart = (product: any, size: string) => {
-    const existing = JSON.parse(localStorage.getItem("cart") || "[]");
-    existing.push({ id: product.id, name: product.name, price: product.price, size, image: product.image });
-    localStorage.setItem("cart", JSON.stringify(existing));
-    alert(`${product.name} (${size}) added to cart!`);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const snap = await getDocs(collection(db, "products"));
+
+      const data: Product[] = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Product[];
+
+      setProducts(data);
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleSizeChange = (key: string, size: string) => {
+    setSelectedSizes((prev) => ({
+      ...prev,
+      [key]: size,
+    }));
   };
 
   return (
-    <Layout>
-      <FadeInSection>
-        <section className="container mx-auto px-6 lg:px-10 py-20 lg:py-32">
-          <h1 className="font-display text-5xl lg:text-7xl text-foreground uppercase tracking-wider mb-16 text-center">
-            Collection
-          </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map((product) => {
-              const sizes = product.sizes || ["S", "M", "L", "XL"];
-              const [selectedSize, setSelectedSize] = useState(sizes[0]);
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {products.flatMap((product) =>
+          product.images.map((image, index) => {
+            const uniqueKey = `${product.id}-${index}`;
 
-              return (
-                <div key={product.id} className="group">
-                  <Link to={`/product/${product.id}`} className="block relative overflow-hidden aspect-[3/4]">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  </Link>
-                  <div className="mt-4 space-y-2">
-                    <h2 className="font-display text-lg tracking-wider uppercase text-foreground">{product.name}</h2>
-                    <p className="text-muted-foreground text-sm font-sans">${product.price}</p>
-                    <select
-                      value={selectedSize}
-                      onChange={(e) => setSelectedSize(e.target.value)}
-                      className="w-full border border-border bg-background text-foreground p-2 text-sm font-sans"
-                    >
-                      {sizes.map((size: string) => (
-                        <option key={size} value={size}>{size}</option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={() => handleAddToCart(product, selectedSize)}
-                      className="w-full py-3 bg-foreground text-background text-[10px] tracking-[0.3em] uppercase font-sans hover:bg-neon hover:text-foreground transition-all duration-300"
-                    >
-                      Add to Cart
-                    </button>
-                  </div>
+            return (
+              <div key={uniqueKey} className="bg-white shadow-md rounded-lg p-4 hover:shadow-xl transition">
+                <div className="w-full h-72 overflow-hidden rounded-md">
+                  <img src={image} alt={product.name} className="w-full h-full object-cover" />
                 </div>
-              );
-            })}
-          </div>
-        </section>
-      </FadeInSection>
-    </Layout>
+
+                <h3 className="mt-4 font-semibold text-lg">{product.name}</h3>
+
+                <p className="text-gray-600 mb-2">₹{product.price}</p>
+
+                <select
+                  className="w-full border p-2 rounded mb-3"
+                  onChange={(e) => handleSizeChange(uniqueKey, e.target.value)}
+                >
+                  <option>Select Size</option>
+                  {product.sizes.map((size) => (
+                    <option key={size}>{size}</option>
+                  ))}
+                </select>
+
+                <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800">Add to Cart</button>
+              </div>
+            );
+          }),
+        )}
+      </div>
+    </div>
   );
 };
 
