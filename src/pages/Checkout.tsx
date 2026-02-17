@@ -62,7 +62,7 @@ const Checkout = () => {
       }
 
       const options = {
-        key: "rzp_test_SG1hClbl38B0a4", // TEST KEY ID
+        key: "rzp_test_SG1hClbl38BOa4", // TEST KEY ID
         amount: data.order.amount,
         currency: "INR",
         name: "HIGH ON DRIP",
