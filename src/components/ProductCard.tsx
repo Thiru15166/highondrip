@@ -26,39 +26,53 @@ const ProductCard = ({ product, image }: Props) => {
       id: product.id,
       name: product.name,
       price: product.price,
-      image,
+      image: image,
       size: selectedSize,
+      quantity: 1,
     };
 
-    const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+    // 🔥 Get existing cart
+    const existingCart = localStorage.getItem("cart");
+    let cart = [];
 
-    localStorage.setItem("cart", JSON.stringify([...existingCart, cartItem]));
+    if (existingCart) {
+      cart = JSON.parse(existingCart);
+    }
 
-    alert("Added to cart");
+    // 🔥 Check if same product + size already exists
+    const existingIndex = cart.findIndex((item: any) => item.id === cartItem.id && item.size === cartItem.size);
+
+    if (existingIndex > -1) {
+      cart[existingIndex].quantity += 1;
+    } else {
+      cart.push(cartItem);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    alert("Added to cart!");
   };
 
   return (
-    <div className="border p-4 rounded-lg shadow-sm">
-      <img src={image} alt={product.name} className="w-full h-64 object-cover rounded-md" />
+    <div className="border p-4 rounded-lg">
+      <img src={image} alt={product.name} className="w-full h-60 object-cover" />
+      <h2 className="mt-2 font-semibold">{product.name}</h2>
+      <p className="text-gray-500">₹ {product.price}</p>
 
-      <h3 className="mt-3 font-semibold uppercase text-sm">{product.name}</h3>
+      <div className="mt-2">
+        {Object.keys(product.sizes).map((size) => (
+          <button
+            key={size}
+            onClick={() => setSelectedSize(size)}
+            className={`px-2 py-1 border mr-2 ${selectedSize === size ? "bg-black text-white" : ""}`}
+          >
+            {size}
+          </button>
+        ))}
+      </div>
 
-      <p className="text-gray-600 mb-2">₹{product.price}</p>
-
-      <select className="w-full border p-2 mb-3" value={selectedSize} onChange={(e) => setSelectedSize(e.target.value)}>
-        <option value="">Select Size</option>
-        {Object.entries(product.sizes || {}).map(
-          ([size, stock]) =>
-            stock > 0 && (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ),
-        )}
-      </select>
-
-      <button onClick={handleAddToCart} className="w-full bg-black text-white py-2">
-        ADD TO CART
+      <button onClick={handleAddToCart} className="mt-3 bg-black text-white px-4 py-2 w-full">
+        Add to Cart
       </button>
     </div>
   );
