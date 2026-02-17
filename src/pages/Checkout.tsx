@@ -6,24 +6,44 @@ declare global {
   }
 }
 
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+}
+
 const Checkout = () => {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const cartData = localStorage.getItem("cart");
+
+    if (cartData) {
+      const parsed = JSON.parse(cartData);
+      setCartItems(parsed);
+    }
+  }, []);
+
+  const totalAmount = cartItems.reduce((total, item) => total + item.price, 0);
+
   const handlePayment = async () => {
+    if (cartItems.length === 0) {
+      alert("Your cart is empty");
+      return;
+    }
+
     try {
       setLoading(true);
 
-      // 🔥 CALL YOUR RENDER BACKEND
       const response = await fetch("https://mensmass-backend.onrender.com/create-order", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ amount: 500 }), // change amount dynamically later
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: totalAmount }),
       });
 
       const data = await response.json();
-      console.log("Order Response:", data);
 
       if (!data.success) {
         alert("Order creation failed");
@@ -32,18 +52,16 @@ const Checkout = () => {
       }
 
       const options = {
-        key: "rzp_test_SG1hClbl38B0a4", // 🔥 your Razorpay key
+        key: "rzp_test_SG1hClbl38B0a4",
         amount: data.order.amount,
-        currency: "INR",
-        name: "HIGH ON DRIP",
-        description: "Order Payment",
+        currency: data.order.currency,
         order_id: data.order.id,
-        handler: function (response: any) {
-          alert("Payment Successful ✅");
-          console.log("Payment Response:", response);
-        },
-        theme: {
-          color: "#000000",
+        name: "HIGH ON DRIP",
+        description: "Fashion Purchase",
+        handler: function () {
+          alert("Payment Successful");
+          localStorage.removeItem("cart");
+          window.location.reload();
         },
       };
 
@@ -53,29 +71,35 @@ const Checkout = () => {
       setLoading(false);
     } catch (error) {
       console.error(error);
-      alert("Something went wrong");
+      alert("Payment failed");
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: "40px", textAlign: "center" }}>
+    <div style={{ padding: "40px" }}>
       <h2>Checkout</h2>
 
-      <button
-        onClick={handlePayment}
-        disabled={loading}
-        style={{
-          padding: "12px 30px",
-          background: "black",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-          marginTop: "20px",
-        }}
-      >
-        {loading ? "Processing..." : "Pay Now"}
-      </button>
+      {cartItems.length === 0 ? (
+        <p>Your cart is empty</p>
+      ) : (
+        <>
+          {cartItems.map((item) => (
+            <div key={item.id} style={{ marginBottom: "15px" }}>
+              <h4>{item.name}</h4>
+              <p>₹ {item.price}</p>
+            </div>
+          ))}
+
+          <hr />
+
+          <h3>Total: ₹ {totalAmount}</h3>
+
+          <button onClick={handlePayment} disabled={loading}>
+            {loading ? "Processing..." : "Pay Now"}
+          </button>
+        </>
+      )}
     </div>
   );
 };
