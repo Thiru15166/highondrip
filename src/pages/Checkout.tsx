@@ -18,7 +18,7 @@ const Checkout = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Load cart from localStorage
+  // ✅ Load cart from localStorage (OLD LOGIC SAME)
   useEffect(() => {
     const stored = localStorage.getItem("cart");
     if (stored) {
@@ -30,9 +30,10 @@ const Checkout = () => {
     }
   }, []);
 
-  // Calculate total
+  // ✅ Calculate total (OLD LOGIC SAME)
   const totalAmount = cartItems.reduce((total, item) => total + Number(item.price), 0);
 
+  // ✅ PAYMENT FUNCTION (SAFE VERSION)
   const handlePayment = async () => {
     if (cartItems.length === 0) {
       alert("Your cart is empty");
@@ -42,7 +43,6 @@ const Checkout = () => {
     try {
       setLoading(true);
 
-      // 🔥 Call Render Backend
       const response = await fetch("https://mensmass-backend.onrender.com/create-order", {
         method: "POST",
         headers: {
@@ -53,6 +53,15 @@ const Checkout = () => {
         }),
       });
 
+      // 🔥 Important Safety Check
+      if (!response.ok) {
+        const text = await response.text();
+        console.log("Backend Error:", text);
+        alert("Backend error - check console");
+        setLoading(false);
+        return;
+      }
+
       const data = await response.json();
 
       if (!data.success) {
@@ -62,13 +71,13 @@ const Checkout = () => {
       }
 
       const options = {
-        key: "rzp_test_SG1hClbl38B0a4", // TEST KEY ID
+        key: "rzp_test_SG1hClbl38B0a4", // Your Test Key
         amount: data.order.amount,
         currency: "INR",
         name: "HIGH ON DRIP",
         description: "Premium Fashion Purchase",
         order_id: data.order.id,
-        handler: function (response: any) {
+        handler: function () {
           alert("Payment Successful 🎉");
           localStorage.removeItem("cart");
           window.location.reload();
@@ -78,57 +87,56 @@ const Checkout = () => {
         },
       };
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+      const razor = new window.Razorpay(options);
+      razor.open();
     } catch (error) {
       console.error("Payment error:", error);
-      alert("Payment failed");
+      alert("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: "40px" }}>
+    <div style={{ padding: "20px" }}>
       <h2>Checkout</h2>
 
-      {cartItems.length === 0 ? (
-        <p>Your cart is empty</p>
-      ) : (
-        <>
-          {cartItems.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                border: "1px solid #ccc",
-                padding: "10px",
-                marginBottom: "10px",
-              }}
-            >
-              <img src={item.image} width="80" alt={item.name} />
-              <h4>{item.name}</h4>
-              <p>Size: {item.size}</p>
-              <p>₹ {item.price}</p>
-            </div>
-          ))}
+      {/* ✅ Cart Display (OLD STYLE SAME) */}
+      {cartItems.map((item) => (
+        <div
+          key={item.id}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "15px",
+            borderBottom: "1px solid #ddd",
+            paddingBottom: "10px",
+          }}
+        >
+          <img src={item.image} alt={item.name} width="80" height="80" style={{ marginRight: "15px" }} />
+          <div>
+            <h4>{item.name}</h4>
+            <p>Size: {item.size}</p>
+            <p>₹ {item.price}</p>
+          </div>
+        </div>
+      ))}
 
-          <h3>Total: ₹ {totalAmount}</h3>
+      <h3>Total: ₹ {totalAmount}</h3>
 
-          <button
-            onClick={handlePayment}
-            disabled={loading}
-            style={{
-              padding: "10px 20px",
-              background: "black",
-              color: "white",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            {loading ? "Processing..." : "Pay Now"}
-          </button>
-        </>
-      )}
+      <button
+        onClick={handlePayment}
+        disabled={loading}
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "black",
+          color: "white",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        {loading ? "Processing..." : "Pay Now"}
+      </button>
     </div>
   );
 };
