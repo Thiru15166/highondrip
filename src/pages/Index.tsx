@@ -1,14 +1,20 @@
+import { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import LookbookSlide from "@/components/LookbookSlide";
 import FadeInSection from "@/components/FadeInSection";
+import IntroScreen from "@/components/IntroScreen";
 import { products } from "@/data/products";
 import logoFull from "@/assets/logo-full.png";
 
 const Index = () => {
   const featuredProducts = products.slice(0, 4);
+  const [showIntro, setShowIntro] = useState(true);
+  const handleIntroComplete = useCallback(() => setShowIntro(false), []);
 
   return (
+    <>
+      {showIntro && <IntroScreen onComplete={handleIntroComplete} />}
     <Layout>
       {/* Hero — Full bleed, logo-driven */}
       <section className="relative h-screen flex flex-col items-center justify-center bg-foreground overflow-hidden">

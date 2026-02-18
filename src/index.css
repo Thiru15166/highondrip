@@ -97,7 +97,130 @@
   }
 }
 
-/* Custom scrollbar for lookbook feel */
+/* ── Cinematic Intro Animations ─────────────────────────────────────── */
+
+/* Overlay */
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.intro-fadeout {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Smoke layer */
+.intro-smoke {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 60%,
+    rgba(20, 10, 5, 0.9) 0%,
+    #000 70%
+  );
+  pointer-events: none;
+}
+
+/* Fire / ember glow behind dragon */
+.intro-fire-glow {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(255, 80, 0, 0.45) 0%,
+    rgba(200, 40, 0, 0.2) 40%,
+    transparent 70%
+  );
+  filter: blur(32px);
+  animation: intro-pulse-glow 2.5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes intro-pulse-glow {
+  0%   { transform: scale(0.95); opacity: 0.7; }
+  100% { transform: scale(1.08); opacity: 1;   }
+}
+
+/* Dragon container */
+.intro-dragon-wrap {
+  position: relative;
+  z-index: 2;
+  animation: intro-dragon-rise 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes intro-dragon-rise {
+  0%   { transform: scale(0.82) translateY(18px); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: scale(1.06) translateY(-10px); opacity: 1; }
+}
+
+/* Dragon image sizing */
+.intro-dragon-img {
+  width: clamp(220px, 30vw, 360px);
+  height: auto;
+  object-fit: contain;
+  /* Invert to white-on-black; hue-rotate keeps the dragon red tint */
+  filter: brightness(0) invert(1) sepia(1) saturate(2) hue-rotate(330deg) brightness(0.9);
+  user-select: none;
+}
+
+/* Brand text */
+.intro-text-wrap {
+  position: relative;
+  z-index: 2;
+  margin-top: 32px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0s;
+}
+
+.intro-text-wrap.intro-text-visible {
+  opacity: 1;
+  animation: intro-text-reveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes intro-text-reveal {
+  0% {
+    opacity: 0;
+    letter-spacing: 0.08em;
+    filter: blur(6px);
+    text-shadow: 0 0 0px transparent;
+  }
+  40% {
+    opacity: 0.8;
+    filter: blur(1px);
+  }
+  100% {
+    opacity: 1;
+    letter-spacing: 0.45em;
+    filter: blur(0);
+    text-shadow:
+      0 0 18px rgba(255, 100, 20, 0.7),
+      0 0 40px rgba(255, 60, 0, 0.35),
+      0 0 80px rgba(200, 30, 0, 0.15);
+  }
+}
+
+.intro-text {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(1.4rem, 5vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f5f0e8;
+}
+
+/* ── Custom scrollbar for lookbook feel ─────────────────────────────── */
 ::-webkit-scrollbar {
   width: 4px;
 }
