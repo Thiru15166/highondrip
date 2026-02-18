@@ -10,35 +10,32 @@ const Checkout = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Load Razorpay Script
+  // Load cart from localStorage
   useEffect(() => {
+    const stored = localStorage.getItem("cart");
+    if (stored) {
+      setCartItems(JSON.parse(stored));
+    }
+
+    // Load Razorpay script
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
     document.body.appendChild(script);
   }, []);
 
-  // ✅ Load Cart From LocalStorage
-  useEffect(() => {
-    const stored = localStorage.getItem("cart");
-    if (stored) {
-      setCartItems(JSON.parse(stored));
-    }
-  }, []);
-
-  // ✅ Calculate Total
+  // Calculate total
   const totalAmount = cartItems.reduce((total, item) => total + Number(item.price), 0);
 
-  // ✅ Remove Item
+  // Remove item
   const removeFromCart = (index: number) => {
     const updatedCart = [...cartItems];
     updatedCart.splice(index, 1);
-
     setCartItems(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
-  // ✅ Handle Payment
+  // Handle payment
   const handlePayment = async () => {
     if (cartItems.length === 0) {
       alert("Your cart is empty");
@@ -56,8 +53,13 @@ const Checkout = () => {
 
       const data = await response.json();
 
+      if (!data.success) {
+        alert("Order creation failed");
+        return;
+      }
+
       const options = {
-        key: "rzp_test_SHgQ522Epryht2"
+        key: "rzp_test_SHgQ522Epryh2", // ✅ உங்கள் test key
         amount: data.amount,
         currency: "INR",
         name: "High On Drip",
@@ -75,7 +77,7 @@ const Checkout = () => {
 
       const rzp = new window.Razorpay(options);
       rzp.open();
-    } catch (error) {
+    } catch (err) {
       alert("Payment Failed ❌");
     } finally {
       setLoading(false);
@@ -87,53 +89,17 @@ const Checkout = () => {
       <h2>Checkout</h2>
 
       {cartItems.map((item, index) => (
-        <div
-          key={index}
-          style={{
-            display: "flex",
-            gap: "20px",
-            marginBottom: "20px",
-            borderBottom: "1px solid #ddd",
-            paddingBottom: "15px",
-          }}
-        >
-          {/* ✅ Product Image */}
-          <img src={item.image} alt={item.name} style={{ width: "80px", height: "100px", objectFit: "cover" }} />
-
-          <div>
-            <p>{item.name}</p>
-            <p>Size: {item.size}</p>
-            <p>₹ {item.price}</p>
-
-            <button
-              onClick={() => removeFromCart(index)}
-              style={{
-                background: "red",
-                color: "white",
-                border: "none",
-                padding: "5px 10px",
-                cursor: "pointer",
-              }}
-            >
-              Remove
-            </button>
-          </div>
+        <div key={index} style={{ marginBottom: "20px" }}>
+          <img src={item.image} width="80" alt="" />
+          <p>{item.name}</p>
+          <p>₹ {item.price}</p>
+          <button onClick={() => removeFromCart(index)}>Remove</button>
         </div>
       ))}
 
       <h3>Total: ₹ {totalAmount}</h3>
 
-      <button
-        onClick={handlePayment}
-        disabled={loading}
-        style={{
-          padding: "10px 20px",
-          background: "black",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
+      <button onClick={handlePayment} disabled={loading}>
         {loading ? "Processing..." : "Pay Now"}
       </button>
     </div>
