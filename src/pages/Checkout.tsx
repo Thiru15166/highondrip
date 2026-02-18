@@ -10,6 +10,14 @@ const Checkout = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // ✅ Load Razorpay Script
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
+
   // ✅ Load Cart From LocalStorage
   useEffect(() => {
     const stored = localStorage.getItem("cart");
@@ -48,19 +56,14 @@ const Checkout = () => {
 
       const data = await response.json();
 
-      if (!data.success) {
-        alert("Order creation failed");
-        return;
-      }
-
       const options = {
-        key: data.key,
+        key: "rzp_test_YOURKEYHERE", // 🔴 Replace with your test key
         amount: data.amount,
         currency: "INR",
         name: "High On Drip",
         description: "Order Payment",
         order_id: data.orderId,
-        handler: function (response: any) {
+        handler: function () {
           alert("Payment Successful ✅");
           localStorage.removeItem("cart");
           setCartItems([]);
@@ -80,39 +83,59 @@ const Checkout = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Checkout</h1>
-
-      {cartItems.length === 0 && <p className="text-gray-500">Your cart is empty</p>}
+    <div style={{ padding: "40px" }}>
+      <h2>Checkout</h2>
 
       {cartItems.map((item, index) => (
-        <div key={index} className="flex items-center justify-between border p-4 mb-4 rounded">
-          <div className="flex items-center gap-4">
-            {/* ✅ Selected Image Show */}
-            <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
+        <div
+          key={index}
+          style={{
+            display: "flex",
+            gap: "20px",
+            marginBottom: "20px",
+            borderBottom: "1px solid #ddd",
+            paddingBottom: "15px",
+          }}
+        >
+          {/* ✅ Product Image */}
+          <img src={item.image} alt={item.name} style={{ width: "80px", height: "100px", objectFit: "cover" }} />
 
-            <div>
-              <p className="font-semibold">{item.name}</p>
-              <p>Size: {item.size}</p>
-              <p>Price: ₹ {item.price}</p>
+          <div>
+            <p>{item.name}</p>
+            <p>Size: {item.size}</p>
+            <p>₹ {item.price}</p>
 
-              <button onClick={() => removeFromCart(index)} className="text-red-500 text-sm mt-2">
-                Remove
-              </button>
-            </div>
+            <button
+              onClick={() => removeFromCart(index)}
+              style={{
+                background: "red",
+                color: "white",
+                border: "none",
+                padding: "5px 10px",
+                cursor: "pointer",
+              }}
+            >
+              Remove
+            </button>
           </div>
         </div>
       ))}
 
-      {cartItems.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-xl font-bold mb-4">Total: ₹ {totalAmount}</h2>
+      <h3>Total: ₹ {totalAmount}</h3>
 
-          <button onClick={handlePayment} disabled={loading} className="bg-black text-white px-6 py-2 rounded">
-            {loading ? "Processing..." : "Pay Now"}
-          </button>
-        </div>
-      )}
+      <button
+        onClick={handlePayment}
+        disabled={loading}
+        style={{
+          padding: "10px 20px",
+          background: "black",
+          color: "white",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        {loading ? "Processing..." : "Pay Now"}
+      </button>
     </div>
   );
 };
