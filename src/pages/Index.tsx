@@ -12,11 +12,7 @@ const Index = () => {
     <Layout>
       {/* Hero — Full bleed, logo-driven */}
       <section className="relative h-screen flex flex-col items-center justify-center bg-foreground overflow-hidden">
-        <img
-          src={logoFull}
-          alt="HIGH ON DRIP — Established 2025"
-          className="h-32 md:h-44 lg:h-56 w-auto mb-10 brightness-0 invert"
-        />
+        <img src={logoFull} alt="HIGH ON DRIP — Established 2025" className="h-32 md:h-44 lg:h-56 w-auto mb-10" />
         <p className="text-[10px] md:text-xs tracking-[0.5em] uppercase text-background/40 font-sans mb-16">
           Limited drops · Premium essentials
         </p>
@@ -30,20 +26,14 @@ const Index = () => {
         {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
           <div className="w-px h-10 bg-background/20 animate-pulse" />
-          <span className="text-background/20 text-[9px] tracking-[0.3em] uppercase font-sans">
-            Scroll
-          </span>
+          <span className="text-background/20 text-[9px] tracking-[0.3em] uppercase font-sans">Scroll</span>
         </div>
       </section>
 
       {/* Lookbook feed */}
       <section>
         {featuredProducts.map((product, index) => (
-          <LookbookSlide
-            key={product.id}
-            product={product}
-            index={index}
-          />
+          <LookbookSlide key={product.id} product={product} index={index} />
         ))}
       </section>
 
