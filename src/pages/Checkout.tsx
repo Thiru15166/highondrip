@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -6,34 +6,22 @@ declare global {
   }
 }
 
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  size: string;
-}
-
 const Checkout = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Load cart from localStorage (OLD LOGIC SAME)
+  // ✅ Load Cart From LocalStorage
   useEffect(() => {
     const stored = localStorage.getItem("cart");
     if (stored) {
-      try {
-        setCartItems(JSON.parse(stored));
-      } catch {
-        setCartItems([]);
-      }
+      setCartItems(JSON.parse(stored));
     }
   }, []);
 
-  // ✅ Calculate total (OLD LOGIC SAME)
+  // ✅ Calculate Total
   const totalAmount = cartItems.reduce((total, item) => total + Number(item.price), 0);
 
-  // ✅ PAYMENT FUNCTION (SAFE VERSION)
+  // ✅ Handle Payment
   const handlePayment = async () => {
     if (cartItems.length === 0) {
       alert("Your cart is empty");
@@ -43,24 +31,14 @@ const Checkout = () => {
     try {
       setLoading(true);
 
+      // 1️⃣ Create Order
       const response = await fetch("https://mensmass-backend.onrender.com/create-order", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: totalAmount,
         }),
       });
-
-      // 🔥 Important Safety Check
-      if (!response.ok) {
-        const text = await response.text();
-        console.log("Backend Error:", text);
-        alert("Backend error - check console");
-        setLoading(false);
-        return;
-      }
 
       const data = await response.json();
 
@@ -70,29 +48,43 @@ const Checkout = () => {
         return;
       }
 
+      // 2️⃣ Razorpay Options
       const options = {
-        key: "rzp_test_SG1hClbl38B0a4", // Your Test Key
+        key: "rzp_test_YOUR_NEW_KEY", // 🔥 Replace with your new key
         amount: data.order.amount,
         currency: "INR",
-        name: "HIGH ON DRIP",
-        description: "Premium Fashion Purchase",
+        name: "Mensmass",
+        description: "Order Payment",
         order_id: data.order.id,
-        handler: function () {
-          alert("Payment Successful 🎉");
-          localStorage.removeItem("cart");
-          window.location.reload();
-        },
-        theme: {
-          color: "#000000",
+
+        handler: async function (response: any) {
+          const verifyRes = await fetch("https://mensmass-backend.onrender.com/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response),
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.success) {
+            alert("Payment Successful");
+
+            // Clear cart after success
+            localStorage.removeItem("cart");
+            setCartItems([]);
+          } else {
+            alert("Payment Failed");
+          }
+
+          setLoading(false);
         },
       };
 
-      const razor = new window.Razorpay(options);
-      razor.open();
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
-      console.error("Payment error:", error);
+      console.log(error);
       alert("Something went wrong");
-    } finally {
       setLoading(false);
     }
   };
@@ -101,42 +93,49 @@ const Checkout = () => {
     <div style={{ padding: "20px" }}>
       <h2>Checkout</h2>
 
-      {/* ✅ Cart Display (OLD STYLE SAME) */}
-      {cartItems.map((item) => (
-        <div
-          key={item.id}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "15px",
-            borderBottom: "1px solid #ddd",
-            paddingBottom: "10px",
-          }}
-        >
-          <img src={item.image} alt={item.name} width="80" height="80" style={{ marginRight: "15px" }} />
-          <div>
-            <h4>{item.name}</h4>
-            <p>Size: {item.size}</p>
-            <p>₹ {item.price}</p>
-          </div>
-        </div>
-      ))}
+      {cartItems.length === 0 ? (
+        <p>Your cart is empty</p>
+      ) : (
+        <>
+          {cartItems.map((item, index) => (
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: "15px",
+                border: "1px solid #ddd",
+                padding: "10px",
+              }}
+            >
+              {/* Product Image */}
+              <img src={item.image} alt={item.name} style={{ width: "80px", marginRight: "15px" }} />
 
-      <h3>Total: ₹ {totalAmount}</h3>
+              <div>
+                <h4>{item.name}</h4>
+                <p>Size: {item.size}</p>
+                <p>Price: ₹ {item.price}</p>
+              </div>
+            </div>
+          ))}
 
-      <button
-        onClick={handlePayment}
-        disabled={loading}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: "black",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        {loading ? "Processing..." : "Pay Now"}
-      </button>
+          <h3>Total: ₹ {totalAmount}</h3>
+
+          <button
+            onClick={handlePayment}
+            disabled={loading}
+            style={{
+              padding: "10px 20px",
+              background: "black",
+              color: "white",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            {loading ? "Processing..." : "Pay Now"}
+          </button>
+        </>
+      )}
     </div>
   );
 };
