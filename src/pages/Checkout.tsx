@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -21,6 +21,15 @@ const Checkout = () => {
   // ✅ Calculate Total
   const totalAmount = cartItems.reduce((total, item) => total + Number(item.price), 0);
 
+  // ✅ Remove Item
+  const removeFromCart = (index: number) => {
+    const updatedCart = [...cartItems];
+    updatedCart.splice(index, 1);
+
+    setCartItems(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
+
   // ✅ Handle Payment
   const handlePayment = async () => {
     if (cartItems.length === 0) {
@@ -31,110 +40,78 @@ const Checkout = () => {
     try {
       setLoading(true);
 
-      // 1️⃣ Create Order
       const response = await fetch("https://mensmass-backend.onrender.com/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: totalAmount,
-        }),
+        body: JSON.stringify({ amount: totalAmount }),
       });
 
       const data = await response.json();
 
       if (!data.success) {
         alert("Order creation failed");
-        setLoading(false);
         return;
       }
 
-      // 2️⃣ Razorpay Options
       const options = {
-        key: "rzp_test_YOUR_NEW_KEY", // 🔥 rzp_test_SHgQ522Epryht2
-        amount: data.order.amount,
+        key: data.key,
+        amount: data.amount,
         currency: "INR",
-        name: "Mensmass",
+        name: "High On Drip",
         description: "Order Payment",
-        order_id: data.order.id,
-
-        handler: async function (response: any) {
-          const verifyRes = await fetch("https://mensmass-backend.onrender.com/verify-payment", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(response),
-          });
-
-          const verifyData = await verifyRes.json();
-
-          if (verifyData.success) {
-            alert("Payment Successful");
-
-            // Clear cart after success
-            localStorage.removeItem("cart");
-            setCartItems([]);
-          } else {
-            alert("Payment Failed");
-          }
-
-          setLoading(false);
+        order_id: data.orderId,
+        handler: function (response: any) {
+          alert("Payment Successful ✅");
+          localStorage.removeItem("cart");
+          setCartItems([]);
+        },
+        theme: {
+          color: "#000000",
         },
       };
 
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
-      console.log(error);
-      alert("Something went wrong");
+      alert("Payment Failed ❌");
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Checkout</h2>
+    <div className="max-w-3xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">Checkout</h1>
 
-      {cartItems.length === 0 ? (
-        <p>Your cart is empty</p>
-      ) : (
-        <>
-          {cartItems.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "15px",
-                border: "1px solid #ddd",
-                padding: "10px",
-              }}
-            >
-              {/* Product Image */}
-              <img src={item.image} alt={item.name} style={{ width: "80px", marginRight: "15px" }} />
+      {cartItems.length === 0 && <p className="text-gray-500">Your cart is empty</p>}
 
-              <div>
-                <h4>{item.name}</h4>
-                <p>Size: {item.size}</p>
-                <p>Price: ₹ {item.price}</p>
-              </div>
+      {cartItems.map((item, index) => (
+        <div key={index} className="flex items-center justify-between border p-4 mb-4 rounded">
+          <div className="flex items-center gap-4">
+            {/* ✅ Selected Image Show */}
+            <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
+
+            <div>
+              <p className="font-semibold">{item.name}</p>
+              <p>Size: {item.size}</p>
+              <p>Price: ₹ {item.price}</p>
+
+              <button onClick={() => removeFromCart(index)} className="text-red-500 text-sm mt-2">
+                Remove
+              </button>
             </div>
-          ))}
+          </div>
+        </div>
+      ))}
 
-          <h3>Total: ₹ {totalAmount}</h3>
+      {cartItems.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-xl font-bold mb-4">Total: ₹ {totalAmount}</h2>
 
-          <button
-            onClick={handlePayment}
-            disabled={loading}
-            style={{
-              padding: "10px 20px",
-              background: "black",
-              color: "white",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
+          <button onClick={handlePayment} disabled={loading} className="bg-black text-white px-6 py-2 rounded">
             {loading ? "Processing..." : "Pay Now"}
           </button>
-        </>
+        </div>
       )}
     </div>
   );
