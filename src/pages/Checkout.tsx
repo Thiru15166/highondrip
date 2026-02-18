@@ -57,7 +57,7 @@ const Checkout = () => {
       const data = await response.json();
 
       const options = {
-        key: "rzp_test_YOURKEYHERE", // 🔴 Replace with your test key
+        key: "rzp_test_SHgQ522Epryht2"
         amount: data.amount,
         currency: "INR",
         name: "High On Drip",
