@@ -50,7 +50,7 @@ const Checkout = () => {
 
       // 2️⃣ Razorpay Options
       const options = {
-        key: "rzp_test_YOUR_NEW_KEY", // 🔥 rzp_test_SHUTzTcqIZ2mIv
+        key: "rzp_test_YOUR_NEW_KEY", // 🔥 rzp_test_SHgQ522Epryht2
         amount: data.order.amount,
         currency: "INR",
         name: "Mensmass",
