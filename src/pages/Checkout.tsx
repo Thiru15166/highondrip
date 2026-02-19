@@ -12,7 +12,7 @@ const Checkout = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Customer Form State
+  // Customer Form State
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -43,9 +43,8 @@ const Checkout = () => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
-  // Handle payment
+  // Handle Payment
   const handlePayment = async () => {
-    // Validate form
     if (!form.name || !form.phone || !form.address) {
       alert("Please fill all customer details");
       return;
@@ -63,9 +62,7 @@ const Checkout = () => {
       const response = await fetch("https://mensmass-backend.onrender.com/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: totalAmount,
-        }),
+        body: JSON.stringify({ amount: totalAmount }),
       });
 
       const data = await response.json();
@@ -76,7 +73,7 @@ const Checkout = () => {
       }
 
       const options = {
-        key: "rzp_test_SHgQ522Epryht2", // உங்கள் real test key வைங்க
+        key: "rzp_test_SHgQ52Epryht2", // உங்கள் real test key
         amount: data.amount,
         currency: "INR",
         name: "High On Drip",
@@ -88,16 +85,22 @@ const Checkout = () => {
           contact: form.phone,
         },
 
-        handler: async function () {
-          // ✅ Save to Firebase
-          await addDoc(collection(db, "orders"), {
+        // ✅ SAFE Firebase Save
+        handler: function () {
+          addDoc(collection(db, "orders"), {
             name: form.name,
             phone: form.phone,
             address: form.address,
             total: totalAmount,
             items: cartItems,
             createdAt: new Date(),
-          });
+          })
+            .then(() => {
+              console.log("Saved to Firebase");
+            })
+            .catch((error) => {
+              console.log("Firebase Error:", error);
+            });
 
           alert("Payment Success ✅");
 
@@ -113,6 +116,7 @@ const Checkout = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
+      console.log("Payment Error:", error);
       alert("Payment Failed ❌");
     } finally {
       setLoading(false);
