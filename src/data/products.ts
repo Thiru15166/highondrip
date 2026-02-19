@@ -1,40 +1,11 @@
-import obsidianTee from "@/assets/products/obsidian-tee.jpg";
-import shadowHoodie from "@/assets/products/shadow-hoodie.jpg";
-import cargoPants from "@/assets/products/cargo-pants.jpg";
-import bomberJacket from "@/assets/products/bomber-jacket.jpg";
-import linenShirt from "@/assets/products/linen-shirt.jpg";
-import trackPants from "@/assets/products/track-pants.jpg";
 
 export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  category: string;
-  sizes: string[];
-  image: string;
-  edition: number;
-  totalEdition: number;
-  layout: "portrait" | "landscape";
+  t" | "landscape";
 }
 
 export const products: Product[] = [
   {
-    id: "obsidian-oversized-tee",
-    name: "Obsidian Oversized Tee",
-    price: 120,
-    description:
-      "Cut from heavyweight organic cotton with a relaxed, oversized silhouette. Designed to drape, not cling.",
-    category: "Tops",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    image: obsidianTee,
-    edition: 14,
-    totalEdition: 50,
-    layout: "portrait",
-  },
-  {
-    id: "shadow-knit-hoodie",
-    name: "Shadow Knit Hoodie",
+    init Hoodie",
     price: 185,
     description:
       "A structured knit hoodie in charcoal. Double-layered hood, ribbed cuffs, and a clean kangaroo pocket.",
