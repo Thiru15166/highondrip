@@ -1,13 +1,9 @@
 import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
-import LookbookSlide from "@/components/LookbookSlide";
 import FadeInSection from "@/components/FadeInSection";
-import { products } from "@/data/products";
 import logoFull from "@/assets/logo-full.png";
 
 const Index = () => {
-  const featuredProducts = products.slice(0, 4);
-
   return (
     <Layout>
       {/* Hero — Full bleed, logo-driven */}
@@ -28,13 +24,6 @@ const Index = () => {
           <div className="w-px h-10 bg-background/20 animate-pulse" />
           <span className="text-background/20 text-[9px] tracking-[0.3em] uppercase font-sans">Scroll</span>
         </div>
-      </section>
-
-      {/* Lookbook feed */}
-      <section>
-        {featuredProducts.map((product, index) => (
-          <LookbookSlide key={product.id} product={product} index={index} />
-        ))}
       </section>
 
       {/* Brand statement */}
@@ -59,7 +48,7 @@ const Index = () => {
         <section className="py-24 lg:py-32 bg-background">
           <div className="container mx-auto px-6 lg:px-10 text-center">
             <p className="text-[10px] tracking-[0.4em] uppercase text-muted-foreground font-sans mb-8">
-              {products.length} Pieces · Limited Quantities
+              Curated Pieces · Limited Quantities
             </p>
             <Link
               to="/shop"
