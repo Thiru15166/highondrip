@@ -74,7 +74,7 @@ const Checkout = () => {
       }
 
       const options = {
-        key: "rzp_test_SHgQ52E...", // keep your real key
+        key: "rzp_test_SHgQ522Epryht2", // keep your real key
         amount: data.amount,
         currency: "INR",
         name: "High On Drip",
