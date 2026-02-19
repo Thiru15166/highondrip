@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 declare global {
   interface Window {
@@ -10,14 +12,14 @@ const Checkout = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Customer Form State (NEW)
+  // ✅ Customer Form State
   const [form, setForm] = useState({
     name: "",
     phone: "",
     address: "",
   });
 
-  // Load cart from localStorage
+  // Load cart + Razorpay script
   useEffect(() => {
     const stored = localStorage.getItem("cart");
     if (stored) {
@@ -41,9 +43,9 @@ const Checkout = () => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
-  // Handle Payment
+  // Handle payment
   const handlePayment = async () => {
-    // ✅ Validate customer details
+    // Validate form
     if (!form.name || !form.phone || !form.address) {
       alert("Please fill all customer details");
       return;
@@ -57,12 +59,12 @@ const Checkout = () => {
     try {
       setLoading(true);
 
+      // Backend order create
       const response = await fetch("https://mensmass-backend.onrender.com/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: totalAmount,
-          customer: form, // ✅ send customer details to backend
         }),
       });
 
@@ -74,21 +76,31 @@ const Checkout = () => {
       }
 
       const options = {
-        key: "rzp_test_SHgQ522Epryht2", // keep your real key
+        key: "rzp_test_SHgQ52E...", // உங்கள் real test key வைங்க
         amount: data.amount,
         currency: "INR",
         name: "High On Drip",
         description: "Order Payment",
         order_id: data.orderId,
 
-        // ✅ Prefill from form
         prefill: {
           name: form.name,
           contact: form.phone,
         },
 
-        handler: function () {
+        handler: async function () {
+          // ✅ Save to Firebase
+          await addDoc(collection(db, "orders"), {
+            name: form.name,
+            phone: form.phone,
+            address: form.address,
+            total: totalAmount,
+            items: cartItems,
+            createdAt: new Date(),
+          });
+
           alert("Payment Success ✅");
+
           localStorage.removeItem("cart");
           setCartItems([]);
         },
@@ -100,7 +112,7 @@ const Checkout = () => {
 
       const rzp = new window.Razorpay(options);
       rzp.open();
-    } catch (err) {
+    } catch (error) {
       alert("Payment Failed ❌");
     } finally {
       setLoading(false);
@@ -120,8 +132,8 @@ const Checkout = () => {
         </div>
       ))}
 
-      {/* ✅ Customer Details Form */}
       <hr />
+
       <h3>Customer Details</h3>
 
       <input
