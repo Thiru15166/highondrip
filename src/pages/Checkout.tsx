@@ -10,6 +10,13 @@ const Checkout = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // ✅ Customer Form State (NEW)
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    address: "",
+  });
+
   // Load cart from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("cart");
@@ -17,7 +24,6 @@ const Checkout = () => {
       setCartItems(JSON.parse(stored));
     }
 
-    // Load Razorpay script
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
@@ -35,8 +41,14 @@ const Checkout = () => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
-  // Handle payment
+  // Handle Payment
   const handlePayment = async () => {
+    // ✅ Validate customer details
+    if (!form.name || !form.phone || !form.address) {
+      alert("Please fill all customer details");
+      return;
+    }
+
     if (cartItems.length === 0) {
       alert("Your cart is empty");
       return;
@@ -48,7 +60,10 @@ const Checkout = () => {
       const response = await fetch("https://mensmass-backend.onrender.com/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: totalAmount }),
+        body: JSON.stringify({
+          amount: totalAmount,
+          customer: form, // ✅ send customer details to backend
+        }),
       });
 
       const data = await response.json();
@@ -59,17 +74,25 @@ const Checkout = () => {
       }
 
       const options = {
-        key: "rzp_test_SHgQ522Epryht2", // ✅ உங்கள் test key
+        key: "rzp_test_SHgQ52E...", // keep your real key
         amount: data.amount,
         currency: "INR",
         name: "High On Drip",
         description: "Order Payment",
         order_id: data.orderId,
+
+        // ✅ Prefill from form
+        prefill: {
+          name: form.name,
+          contact: form.phone,
+        },
+
         handler: function () {
-          alert("Payment Successful ✅");
+          alert("Payment Success ✅");
           localStorage.removeItem("cart");
           setCartItems([]);
         },
+
         theme: {
           color: "#000000",
         },
@@ -96,6 +119,36 @@ const Checkout = () => {
           <button onClick={() => removeFromCart(index)}>Remove</button>
         </div>
       ))}
+
+      {/* ✅ Customer Details Form */}
+      <hr />
+      <h3>Customer Details</h3>
+
+      <input
+        type="text"
+        placeholder="Full Name"
+        value={form.name}
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
+      />
+      <br />
+      <br />
+
+      <input
+        type="text"
+        placeholder="Phone Number"
+        value={form.phone}
+        onChange={(e) => setForm({ ...form, phone: e.target.value })}
+      />
+      <br />
+      <br />
+
+      <textarea
+        placeholder="Delivery Address"
+        value={form.address}
+        onChange={(e) => setForm({ ...form, address: e.target.value })}
+      />
+      <br />
+      <br />
 
       <h3>Total: ₹ {totalAmount}</h3>
 
