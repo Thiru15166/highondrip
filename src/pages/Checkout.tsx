@@ -73,7 +73,7 @@ const Checkout = () => {
       }
 
       const options = {
-        key: "rzp_test_SHgQ52Epryht2", // உங்கள் real test key
+        key: "rzp_test_SHgQ522Epryht2", // உங்கள் real test key
         amount: data.amount,
         currency: "INR",
         name: "High On Drip",
