@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, collection, getDocs, addDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/firebase";
 import Layout from "@/components/layout/Layout";
 
@@ -12,17 +12,28 @@ interface Product {
   image: string;
 }
 
+interface OrderItem {
+  id: string;
+  name: string;
+  size: string;
+  price: number;
+  image: string;
+  quantity: number;
+}
+
 interface Order {
   id: string;
-  customerName: string;
+  name: string;
   phone: string;
   address: string;
   total: number;
   createdAt: any;
+  items: OrderItem[];
 }
 
 const Admin = () => {
   const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState<"products" | "orders">("products");
@@ -58,7 +69,7 @@ const Admin = () => {
   // 📦 Fetch Products
   const fetchProducts = async () => {
     const snapshot = await getDocs(collection(db, "products"));
-    const list: Product[] = snapshot.docs.map((doc) => ({
+    const list = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as Product[];
@@ -66,10 +77,10 @@ const Admin = () => {
     setProducts(list);
   };
 
-  // 📑 Fetch Orders
+  // 🧾 Fetch Orders
   const fetchOrders = async () => {
     const snapshot = await getDocs(collection(db, "orders"));
-    const list: Order[] = snapshot.docs.map((doc) => ({
+    const list = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as Order[];
@@ -118,20 +129,20 @@ const Admin = () => {
 
         {/* Tabs */}
         <div className="flex gap-4 mb-6">
-          <button onClick={() => setActiveTab("products")} className="px-4 py-2 bg-black text-white rounded">
+          <button onClick={() => setActiveTab("products")} className="px-4 py-2 bg-black text-white">
             Products
           </button>
-          <button onClick={() => setActiveTab("orders")} className="px-4 py-2 bg-gray-700 text-white rounded">
+          <button onClick={() => setActiveTab("orders")} className="px-4 py-2 bg-gray-300">
             Orders
           </button>
         </div>
 
-        {/* PRODUCTS */}
+        {/* PRODUCTS TAB */}
         {activeTab === "products" && (
           <div>
             <h2 className="text-xl font-semibold mb-4">Add Product</h2>
 
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="flex gap-3 mb-4">
               <input
                 type="text"
                 placeholder="Product Name"
@@ -153,58 +164,78 @@ const Admin = () => {
                 onChange={(e) => setNewImage(e.target.value)}
                 className="border p-2"
               />
+              <button onClick={handleAddProduct} className="bg-black text-white px-4">
+                Add
+              </button>
             </div>
 
-            <button onClick={handleAddProduct} className="bg-black text-white px-6 py-2 rounded mb-8">
-              Add Product
-            </button>
-
-            <h2 className="text-xl font-semibold mb-4">Product List</h2>
-
-            <div className="grid grid-cols-3 gap-6">
-              {products.map((product) => (
-                <div key={product.id} className="border p-4 rounded">
-                  <img src={product.image} alt={product.name} className="h-40 w-full object-cover mb-2" />
-                  <h3 className="font-bold">{product.name}</h3>
-                  <p>₹{product.price}</p>
-                  <button
-                    onClick={() => handleDelete(product.id!)}
-                    className="mt-2 bg-red-500 text-white px-3 py-1 rounded"
-                  >
-                    Delete
-                  </button>
+            {products.map((product) => (
+              <div key={product.id} className="border p-3 mb-3 flex justify-between items-center">
+                <div className="flex gap-4 items-center">
+                  <img src={product.image} width="60" />
+                  <div>
+                    <p>{product.name}</p>
+                    <p>₹{product.price}</p>
+                  </div>
                 </div>
-              ))}
-            </div>
+                <button onClick={() => handleDelete(product.id!)} className="bg-red-500 text-white px-3">
+                  Delete
+                </button>
+              </div>
+            ))}
           </div>
         )}
 
-        {/* ORDERS */}
+        {/* ORDERS TAB */}
         {activeTab === "orders" && (
           <div>
-            <h2 className="text-xl font-semibold mb-6">Orders List</h2>
+            <h2 className="text-xl font-semibold mb-4">Orders</h2>
 
-            <div className="space-y-4">
-              {orders.map((order) => (
-                <div key={order.id} className="border p-4 rounded">
-                  <p>
-                    <strong>Name:</strong> {order.customerName}
-                  </p>
-                  <p>
-                    <strong>Phone:</strong> {order.phone}
-                  </p>
-                  <p>
-                    <strong>Address:</strong> {order.address}
-                  </p>
-                  <p>
-                    <strong>Total:</strong> ₹{order.total}
-                  </p>
-                  <p>
-                    <strong>Date:</strong> {order.createdAt?.toDate().toLocaleString()}
-                  </p>
-                </div>
-              ))}
-            </div>
+            {orders.map((order) => (
+              <div key={order.id} className="border-2 border-black p-4 mb-6">
+                <p>
+                  <b>Name:</b> {order.name}
+                </p>
+                <p>
+                  <b>Phone:</b> {order.phone}
+                </p>
+                <p>
+                  <b>Address:</b> {order.address}
+                </p>
+                <p>
+                  <b>Total:</b> ₹{order.total}
+                </p>
+
+                <p>
+                  <b>Date:</b>{" "}
+                  {order.createdAt
+                    ? new Date(
+                        order.createdAt.seconds ? order.createdAt.seconds * 1000 : order.createdAt,
+                      ).toLocaleString()
+                    : ""}
+                </p>
+
+                {order.items?.map((item, index) => (
+                  <div key={index} className="border p-3 mt-4 flex gap-4 items-center">
+                    <img src={item.image} width="100" />
+                    <div>
+                      <p>
+                        <b>Product:</b> {item.name}
+                      </p>
+                      <p>
+                        <b>Size:</b> {item.size}
+                      </p>
+                      <p>
+                        <b>Quantity:</b> {item.quantity}
+                      </p>
+                      <p>
+                        <b>Price:</b> ₹{item.price}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
         )}
       </div>
