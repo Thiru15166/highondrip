@@ -7,85 +7,98 @@ interface CartItem {
   name: string;
   size: string;
   price: number;
-  image?: string;
+  image: string;
+  quantity: number;
 }
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const navigate = useNavigate();
 
+  // Load cart from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("cart");
     if (stored) {
-      try {
-        setCartItems(JSON.parse(stored));
-      } catch {
-        setCartItems([]);
-      }
+      setCartItems(JSON.parse(stored));
     }
   }, []);
 
-  const totalAmount = cartItems.reduce((sum, item) => sum + item.price, 0);
-
+  // Remove item
   const removeItem = (index: number) => {
     const updated = cartItems.filter((_, i) => i !== index);
     setCartItems(updated);
     localStorage.setItem("cart", JSON.stringify(updated));
   };
 
-  if (cartItems.length === 0) {
-    return (
-      <Layout>
-        <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
-          <button
-            onClick={() => navigate("/shop")}
-            className="mt-4 bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition"
-          >
-            Browse Collection
-          </button>
-        </div>
-      </Layout>
-    );
-  }
+  // Increase quantity
+  const increaseQty = (index: number) => {
+    const updated = [...cartItems];
+    updated[index].quantity += 1;
+    setCartItems(updated);
+    localStorage.setItem("cart", JSON.stringify(updated));
+  };
+
+  // Decrease quantity
+  const decreaseQty = (index: number) => {
+    const updated = [...cartItems];
+    if (updated[index].quantity > 1) {
+      updated[index].quantity -= 1;
+      setCartItems(updated);
+      localStorage.setItem("cart", JSON.stringify(updated));
+    }
+  };
+
+  // Total calculation
+  const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto px-4 py-12">
-        <h1 className="text-2xl font-bold mb-8">Your Cart</h1>
+      <div style={{ padding: "20px" }}>
+        <h2>Your Cart</h2>
 
-        <div className="space-y-4">
-          {cartItems.map((item, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between border border-border rounded-lg p-4 bg-card"
-            >
-              <div>
-                <p className="font-semibold text-card-foreground">{item.name}</p>
-                <p className="text-sm text-muted-foreground">Size: {item.size}</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <p className="font-medium text-card-foreground">₹{item.price}</p>
-                <button
-                  onClick={() => removeItem(index)}
-                  className="text-sm text-destructive hover:underline"
-                >
-                  Remove
-                </button>
-              </div>
+        {cartItems.length === 0 && <p>Cart is empty</p>}
+
+        {cartItems.map((item, index) => (
+          <div
+            key={index}
+            style={{
+              border: "1px solid #ddd",
+              padding: "15px",
+              marginBottom: "15px",
+            }}
+          >
+            <img src={item.image} width="100" alt={item.name} />
+
+            <h4>{item.name}</h4>
+            <p>Size: {item.size}</p>
+            <p>Price: ₹{item.price}</p>
+
+            <div>
+              <button onClick={() => decreaseQty(index)}>-</button>
+              <span style={{ margin: "0 10px" }}>{item.quantity}</span>
+              <button onClick={() => increaseQty(index)}>+</button>
             </div>
-          ))}
-        </div>
 
-        <div className="mt-8 border-t border-border pt-6 flex items-center justify-between">
-          <p className="text-lg font-bold">Total: ₹{totalAmount}</p>
+            <button onClick={() => removeItem(index)} style={{ marginTop: "10px", background: "red", color: "white" }}>
+              Remove
+            </button>
+          </div>
+        ))}
+
+        <h3>Total: ₹{totalAmount}</h3>
+
+        {cartItems.length > 0 && (
           <button
             onClick={() => navigate("/checkout")}
-            className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary/90 transition"
+            style={{
+              padding: "10px 20px",
+              background: "black",
+              color: "white",
+            }}
           >
-            Place Order
+            Proceed to Checkout
           </button>
-        </div>
+        )}
       </div>
     </Layout>
   );
