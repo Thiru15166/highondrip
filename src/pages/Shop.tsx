@@ -167,10 +167,10 @@ export default function Shop() {
         <div className="flex justify-end mb-8 md:mb-12">
           <button
             onClick={() => setGridCols((prev) => (prev === 2 ? 3 : prev === 3 ? 4 : 2))}
-            className="p-3 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground/50 hover:text-foreground active:text-foreground active:scale-95 transition-all duration-300"
+            className="relative z-10 p-3 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground/50 hover:text-foreground active:text-foreground active:scale-95 active:opacity-70 transition-all duration-200 touch-manipulation select-none"
             aria-label={`Switch to ${gridCols === 2 ? 3 : gridCols === 3 ? 4 : 2}-column view`}
           >
-            {gridCols === 2 ? <Grid2X2 className="w-4 h-4" /> : gridCols === 3 ? <Grid3X3 className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
+            {gridCols === 2 ? <Grid2X2 className="w-5 h-5 pointer-events-none" /> : gridCols === 3 ? <Grid3X3 className="w-5 h-5 pointer-events-none" /> : <LayoutGrid className="w-5 h-5 pointer-events-none" />}
           </button>
         </div>
 
