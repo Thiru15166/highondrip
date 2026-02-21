@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
-import { Check, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, X, ChevronLeft, ChevronRight, Grid2X2, Grid3X3, LayoutGrid } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FadeInSection from "@/components/FadeInSection";
@@ -42,6 +42,7 @@ export default function Shop() {
   const [miniCartOpen, setMiniCartOpen] = useState(false);
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [gridCols, setGridCols] = useState<2 | 3 | 4>(3);
 
   useEffect(() => {
     const stored = localStorage.getItem("cart");
@@ -161,7 +162,27 @@ export default function Shop() {
 
       {/* Product Grid */}
       <div className="max-w-7xl mx-auto px-6 pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-16">
+        {/* Grid Toggle */}
+        <div className="flex justify-end items-center gap-1 mb-8">
+          {([2, 3, 4] as const).map((cols) => (
+            <button
+              key={cols}
+              onClick={() => setGridCols(cols)}
+              className={`p-2 transition-colors duration-300 ${
+                gridCols === cols
+                  ? "text-foreground"
+                  : "text-muted-foreground/40 hover:text-muted-foreground"
+              }`}
+              aria-label={`${cols}-column view`}
+            >
+              {cols === 2 ? <Grid2X2 className="w-4 h-4" /> : cols === 3 ? <Grid3X3 className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
+            </button>
+          ))}
+        </div>
+
+        <div className={`grid grid-cols-1 gap-x-6 gap-y-16 transition-all duration-500 ease-out ${
+          gridCols === 2 ? "md:grid-cols-2" : gridCols === 3 ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-4"
+        }`}>
           {cards.map((card, index) => {
             const sizeSelected = !!selectedSizes[card.productId];
             const justAdded = addedIds.has(card.productId);
