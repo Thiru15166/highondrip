@@ -164,10 +164,10 @@ export default function Shop() {
       {/* Product Grid */}
       <div className="max-w-[1400px] mx-auto px-4 md:px-12 lg:px-16 pb-24 md:pb-40">
         {/* Grid Toggle */}
-        <div className="hidden md:flex justify-end mb-12">
+        <div className="flex justify-end mb-8 md:mb-12">
           <button
             onClick={() => setGridCols((prev) => (prev === 2 ? 3 : prev === 3 ? 4 : 2))}
-            className="p-2 text-muted-foreground/50 hover:text-foreground transition-colors duration-300"
+            className="p-3 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground/50 hover:text-foreground active:text-foreground active:scale-95 transition-all duration-300"
             aria-label={`Switch to ${gridCols === 2 ? 3 : gridCols === 3 ? 4 : 2}-column view`}
           >
             {gridCols === 2 ? <Grid2X2 className="w-4 h-4" /> : gridCols === 3 ? <Grid3X3 className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
