@@ -7,8 +7,8 @@ interface Product {
   price: number;
   sizes: { [key: string]: number };
   images: string[];
-  sleeveType: string;
-  description: string;
+  sleeveType?: string;
+  description?: string;
 }
 
 interface CardItem {
@@ -17,8 +17,8 @@ interface CardItem {
   price: number;
   image: string;
   sizes: { [key: string]: number };
-  sleeveType: string;
-  description: string;
+  sleeveType?: string;
+  description?: string;
 }
 
 interface CartItem {
@@ -35,11 +35,11 @@ export default function Shop() {
   const [selectedSizes, setSelectedSizes] = useState<{ [key: string]: string }>({});
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  // Load cart from localStorage
+  // Load cart
   useEffect(() => {
-    const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      setCartItems(JSON.parse(storedCart));
+    const stored = localStorage.getItem("cart");
+    if (stored) {
+      setCartItems(JSON.parse(stored));
     }
   }, []);
 
@@ -109,7 +109,6 @@ export default function Shop() {
 
     setCartItems(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
-
     alert("Added to Cart");
   };
 
@@ -117,25 +116,28 @@ export default function Shop() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-10 p-8">
       {cards.map((card) => (
         <div key={card.productId} className="space-y-3">
-          {/* Product Image */}
+          {/* Image */}
           <img src={card.image} alt={card.name} className="w-full aspect-[3/4] object-cover" />
 
-          {/* Name & Price */}
-          <div className="flex justify-between items-center">
+          {/* Name + Price */}
+          <div className="flex justify-between">
             <h2 className="text-sm font-medium">{card.name}</h2>
             <p className="text-sm">₹{card.price}</p>
           </div>
 
           {/* Sleeve Type */}
           <p className="text-xs text-gray-500">
-            {card.sleeveType === "full" && "Full Sleeve Shirt"}
-            {card.sleeveType === "half" && "Half Sleeve Shirt"}
+            {card.sleeveType?.trim().toLowerCase() === "full"
+              ? "Full Sleeve Shirt"
+              : card.sleeveType?.trim().toLowerCase() === "half"
+                ? "Half Sleeve Shirt"
+                : ""}
           </p>
 
           {/* Description */}
           <p className="text-xs text-gray-600">{card.description}</p>
 
-          {/* Size Selection */}
+          {/* Sizes */}
           <div className="flex gap-2 flex-wrap">
             {Object.keys(card.sizes || {}).map((size) => (
               <button
