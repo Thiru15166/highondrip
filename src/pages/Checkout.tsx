@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
+import { db } from "@/firebase";
 
 declare global {
   interface Window {
@@ -8,11 +8,20 @@ declare global {
   }
 }
 
-const Checkout = () => {
-  const [cartItems, setCartItems] = useState<any[]>([]);
+interface CartItem {
+  productId: string;
+  name: string;
+  price: number;
+  image: string;
+  selectedSize: string;
+  sleeveType: string;
+  quantity: number;
+}
+
+export default function Checkout() {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Customer Form State
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -33,146 +42,121 @@ const Checkout = () => {
   }, []);
 
   // Calculate total
-  const totalAmount = cartItems.reduce((total, item) => total + Number(item.price), 0);
+  const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   // Remove item
   const removeFromCart = (index: number) => {
-    const updatedCart = [...cartItems];
-    updatedCart.splice(index, 1);
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    const updated = [...cartItems];
+    updated.splice(index, 1);
+    setCartItems(updated);
+    localStorage.setItem("cart", JSON.stringify(updated));
   };
 
   // Handle Payment
   const handlePayment = async () => {
     if (!form.name || !form.phone || !form.address) {
-      alert("Please fill all customer details");
+      alert("Please fill all details");
       return;
     }
 
     if (cartItems.length === 0) {
-      alert("Your cart is empty");
+      alert("Cart is empty");
       return;
     }
 
-    try {
-      setLoading(true);
+    setLoading(true);
 
-      // Backend order create
-      const response = await fetch("https://mensmass-backend.onrender.com/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: totalAmount }),
-      });
+    const options = {
+      key: "YOUR_RAZORPAY_PUBLIC_KEY", // 🔥 replace this
+      amount: totalAmount * 100,
+      currency: "INR",
+      name: "Mensmass",
+      description: "Order Payment",
+      handler: async function (response: any) {
+        await addDoc(collection(db, "orders"), {
+          customerName: form.name,
+          phone: form.phone,
+          address: form.address,
+          items: cartItems,
+          totalAmount,
+          paymentId: response.razorpay_payment_id,
+          createdAt: new Date(),
+        });
 
-      const data = await response.json();
+        alert("Payment Successful & Order Placed");
 
-      if (!data.success) {
-        alert("Order creation failed");
-        return;
-      }
+        localStorage.removeItem("cart");
+        setCartItems([]);
+        setLoading(false);
+      },
+      prefill: {
+        name: form.name,
+        contact: form.phone,
+      },
+      theme: {
+        color: "#000000",
+      },
+    };
 
-      const options = {
-        key: "rzp_test_SHgQ522Epryht2", // உங்கள் real test key
-        amount: data.amount,
-        currency: "INR",
-        name: "High On Drip",
-        description: "Order Payment",
-        order_id: data.orderId,
-
-        prefill: {
-          name: form.name,
-          contact: form.phone,
-        },
-
-        // ✅ SAFE Firebase Save
-        handler: function () {
-          addDoc(collection(db, "orders"), {
-            name: form.name,
-            phone: form.phone,
-            address: form.address,
-            total: totalAmount,
-            items: cartItems,
-            createdAt: new Date(),
-          })
-            .then(() => {
-              console.log("Saved to Firebase");
-            })
-            .catch((error) => {
-              console.log("Firebase Error:", error);
-            });
-
-          alert("Payment Success ✅");
-
-          localStorage.removeItem("cart");
-          setCartItems([]);
-        },
-
-        theme: {
-          color: "#000000",
-        },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (error) {
-      console.log("Payment Error:", error);
-      alert("Payment Failed ❌");
-    } finally {
-      setLoading(false);
-    }
+    const rzp = new window.Razorpay(options);
+    rzp.open();
   };
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h2>Checkout</h2>
+    <div className="p-8 max-w-4xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold">Checkout</h1>
 
+      {/* Cart Items */}
       {cartItems.map((item, index) => (
-        <div key={index} style={{ marginBottom: "20px" }}>
-          <img src={item.image} width="80" alt="" />
-          <p>{item.name}</p>
-          <p>₹ {item.price}</p>
-          <button onClick={() => removeFromCart(index)}>Remove</button>
+        <div key={index} className="flex items-center gap-4 border p-4">
+          <img src={item.image} alt={item.name} className="w-20 h-20 object-cover" />
+          <div className="flex-1">
+            <h2 className="font-semibold">{item.name}</h2>
+            <p>₹ {item.price}</p>
+            <p>Size: {item.selectedSize}</p>
+            <p>Sleeve: {item.sleeveType}</p>
+            <p>Qty: {item.quantity}</p>
+          </div>
+
+          <button onClick={() => removeFromCart(index)} className="text-red-500">
+            Remove
+          </button>
         </div>
       ))}
 
-      <hr />
+      {/* Total */}
+      <div className="text-right font-bold text-lg">Total: ₹ {totalAmount}</div>
 
-      <h3>Customer Details</h3>
+      {/* Customer Form */}
+      <div className="space-y-4">
+        <input
+          type="text"
+          placeholder="Full Name"
+          className="w-full border p-3"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+        />
 
-      <input
-        type="text"
-        placeholder="Full Name"
-        value={form.name}
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-      />
-      <br />
-      <br />
+        <input
+          type="text"
+          placeholder="Phone Number"
+          className="w-full border p-3"
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+        />
 
-      <input
-        type="text"
-        placeholder="Phone Number"
-        value={form.phone}
-        onChange={(e) => setForm({ ...form, phone: e.target.value })}
-      />
-      <br />
-      <br />
+        <textarea
+          placeholder="Full Address"
+          className="w-full border p-3"
+          value={form.address}
+          onChange={(e) => setForm({ ...form, address: e.target.value })}
+        />
+      </div>
 
-      <textarea
-        placeholder="Delivery Address"
-        value={form.address}
-        onChange={(e) => setForm({ ...form, address: e.target.value })}
-      />
-      <br />
-      <br />
-
-      <h3>Total: ₹ {totalAmount}</h3>
-
-      <button onClick={handlePayment} disabled={loading}>
-        {loading ? "Processing..." : "Pay Now"}
+      {/* Pay Button */}
+      <button onClick={handlePayment} disabled={loading} className="w-full bg-black text-white py-3 mt-4">
+        {loading ? "Processing..." : "Pay & Place Order"}
       </button>
     </div>
   );
-};
-
-export default Checkout;
+}
