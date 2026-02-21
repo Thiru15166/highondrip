@@ -181,7 +181,7 @@ const Cart = () => {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground tracking-[0.1em]">Shipping</span>
                       <span className="text-[11px] tracking-[0.1em] text-muted-foreground uppercase">
-                        Calculated at checkout
+                        Calculated at order
                       </span>
                     </div>
                   </div>
