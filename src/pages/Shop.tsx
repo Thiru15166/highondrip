@@ -3,7 +3,6 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 
 interface Product {
-  id: string;
   name: string;
   price: number;
   sizes: { [key: string]: number };
@@ -36,7 +35,7 @@ export default function Shop() {
   const [selectedSizes, setSelectedSizes] = useState<{ [key: string]: string }>({});
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  // Load cart
+  // Load cart from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("cart");
     if (stored) setCartItems(JSON.parse(stored));
@@ -46,14 +45,14 @@ export default function Shop() {
   useEffect(() => {
     const fetchProducts = async () => {
       const snap = await getDocs(collection(db, "products"));
-      const tempCards: CardItem[] = [];
+      const temp: CardItem[] = [];
 
       snap.forEach((doc) => {
         const data = doc.data() as Product;
 
         if (data.images && Array.isArray(data.images)) {
           data.images.forEach((img, index) => {
-            tempCards.push({
+            temp.push({
               productId: doc.id + "-" + index,
               name: data.name,
               price: data.price,
@@ -66,7 +65,7 @@ export default function Shop() {
         }
       });
 
-      setCards(tempCards);
+      setCards(temp);
     };
 
     fetchProducts();
@@ -80,13 +79,16 @@ export default function Shop() {
     const selectedSize = selectedSizes[card.productId];
     if (!selectedSize) return;
 
-    const existing = [...cartItems];
-    const index = existing.findIndex((item) => item.productId === card.productId && item.selectedSize === selectedSize);
+    const updated = [...cartItems];
 
-    if (index > -1) {
-      existing[index].quantity += 1;
+    const existingIndex = updated.findIndex(
+      (item) => item.productId === card.productId && item.selectedSize === selectedSize,
+    );
+
+    if (existingIndex > -1) {
+      updated[existingIndex].quantity += 1;
     } else {
-      existing.push({
+      updated.push({
         productId: card.productId,
         name: card.name,
         price: card.price,
@@ -96,14 +98,14 @@ export default function Shop() {
       });
     }
 
-    setCartItems(existing);
-    localStorage.setItem("cart", JSON.stringify(existing));
+    setCartItems(updated);
+    localStorage.setItem("cart", JSON.stringify(updated));
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6">
       {cards.map((card) => (
-        <div key={card.productId} className="space-y-3 border p-4">
+        <div key={card.productId} className="space-y-3">
           {/* Image */}
           <img src={card.image} alt={card.name} className="w-full aspect-[3/4] object-cover" />
 
@@ -114,15 +116,17 @@ export default function Shop() {
           </div>
 
           {/* Sleeve Type */}
-          <p className="text-xs text-gray-500">
-            {card.sleeveType?.toLowerCase() === "full" && "Full Sleeve Shirt"}
-            {card.sleeveType?.toLowerCase() === "half" && "Half Sleeve Shirt"}
-          </p>
+          {card.sleeveType && (
+            <p className="text-xs text-gray-500">
+              {card.sleeveType.toLowerCase() === "full" && "Full Sleeve Shirt"}
+              {card.sleeveType.toLowerCase() === "half" && "Half Sleeve Shirt"}
+            </p>
+          )}
 
           {/* Description */}
           {card.description && <p className="text-xs text-gray-600">{card.description}</p>}
 
-          {/* Size Selection */}
+          {/* Sizes */}
           <div className="flex gap-2 flex-wrap">
             {Object.keys(card.sizes || {}).map((size) => (
               <button
@@ -141,7 +145,7 @@ export default function Shop() {
           <button
             onClick={() => handleAddToCart(card)}
             disabled={!selectedSizes[card.productId]}
-            className="w-full bg-black text-white text-xs py-2 disabled:bg-gray-400"
+            className="w-full bg-gray-800 text-white text-xs py-2 disabled:bg-gray-400"
           >
             {selectedSizes[card.productId] ? "Add To Cart" : "Select Size"}
           </button>
