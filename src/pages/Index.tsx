@@ -16,7 +16,7 @@ const Index = () => {
           to="/shop"
           className="inline-block border border-background/20 text-background px-10 py-4 text-[10px] tracking-[0.35em] uppercase font-sans transition-all duration-500 hover:bg-neon hover:text-foreground hover:border-neon"
         >
-          Enter Collection
+          Enter Releases
         </Link>
 
         {/* Scroll indicator */}
@@ -54,7 +54,7 @@ const Index = () => {
               to="/shop"
               className="inline-block bg-foreground text-background px-12 py-4 text-[10px] tracking-[0.35em] uppercase font-sans transition-all duration-500 hover:bg-neon hover:text-foreground"
             >
-              View Full Collection
+              View All Releases
             </Link>
           </div>
         </section>
