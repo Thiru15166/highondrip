@@ -21,8 +21,8 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <Link
           to="/"
-          className={`font-bold tracking-[0.25em] uppercase transition-all duration-500 ${
-            scrolled ? "text-base" : "text-xl"
+          className={`font-serif font-black tracking-[0.15em] uppercase transition-all duration-500 ${
+            scrolled ? "text-lg" : "text-2xl"
           }`}
         >
           HIGH ON DRIP
