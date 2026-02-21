@@ -2,81 +2,42 @@ import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import FadeInSection from "@/components/FadeInSection";
 import editorialCover from "@/assets/editorial-cover.jpg";
+import categoryHoodies from "@/assets/category-hoodies.jpg";
+import categoryTshirts from "@/assets/category-tshirts.jpg";
+import categoryPants from "@/assets/category-pants.jpg";
+
+const categories = [
+  { name: "Hoodies", image: categoryHoodies },
+  { name: "T-Shirts", image: categoryTshirts },
+  { name: "Pants", image: categoryPants },
+];
 
 const Index = () => {
   return (
     <Layout>
-      {/* COVER — Full-bleed fashion editorial */}
+      {/* HERO — Full-screen minimal */}
       <section className="relative h-screen w-full overflow-hidden flex items-center justify-center -mt-[72px]">
-        {/* Background image */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
           style={{ backgroundImage: `url(${editorialCover})` }}
         />
+        <div className="absolute inset-0 bg-foreground/50" />
 
-        {/* Cinematic grain overlay */}
-        <div className="absolute inset-0 bg-foreground/40" />
-        <div
-          className="absolute inset-0 opacity-[0.06] pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          }}
-        />
-
-        {/* Corner editorial text — top left */}
-        <div className="absolute top-28 left-8 md:left-12 z-10">
-          <p className="text-background/50 text-[9px] md:text-[10px] tracking-[0.4em] uppercase font-sans">
-            Limited Issue
-          </p>
-        </div>
-
-        {/* Corner editorial text — top right */}
-        <div className="absolute top-28 right-8 md:right-12 z-10 text-right">
-          <p className="text-background/50 text-[9px] md:text-[10px] tracking-[0.4em] uppercase font-sans">
-            SS &apos;26
-          </p>
-        </div>
-
-        {/* Corner editorial text — bottom left */}
-        <div className="absolute bottom-12 left-8 md:left-12 z-10">
-          <p className="text-background/30 text-[8px] md:text-[9px] tracking-[0.5em] uppercase font-sans">
-            Curated Essentials
-          </p>
-        </div>
-
-        {/* Corner editorial text — bottom right */}
-        <div className="absolute bottom-12 right-8 md:right-12 z-10 text-right">
-          <p className="text-background/30 text-[8px] md:text-[9px] tracking-[0.5em] uppercase font-sans">
-            Est. 2025
-          </p>
-        </div>
-
-        {/* Center cover content */}
         <div className="relative z-10 flex flex-col items-center text-center px-6">
-          {/* Drop label */}
-          <p className="text-background/50 text-[9px] md:text-[10px] tracking-[0.6em] uppercase font-sans mb-6">
-            Drop 01
+          <p className="text-background/50 text-[9px] md:text-[10px] tracking-[0.6em] uppercase font-sans mb-8">
+            Upcoming Release
           </p>
-
-          {/* Wordmark */}
-          <h1 className="font-serif font-black text-background text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-[0.12em] uppercase leading-[0.85]">
+          <h1 className="font-serif font-black text-background text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-[0.12em] uppercase leading-[0.85] mb-14">
             High
             <br />
             On Drip
           </h1>
-
-          {/* Tagline */}
-          <p className="text-background/40 text-[9px] md:text-[10px] tracking-[0.5em] uppercase font-sans mt-8 mb-14">
-            Premium Streetwear · Quiet Luxury
-          </p>
-
-          {/* CTA */}
           <Link
             to="/shop"
-            className="group relative inline-block border border-background/30 text-background px-12 py-4 text-[10px] tracking-[0.35em] uppercase font-sans overflow-hidden transition-all duration-700 hover:border-background/60"
+            className="group relative inline-block border border-background/30 text-background px-14 py-4 text-[10px] tracking-[0.35em] uppercase font-sans overflow-hidden transition-all duration-700 hover:border-background/60"
           >
             <span className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-all duration-700" />
-            <span className="relative">Enter the Drop</span>
+            <span className="relative">View Drop</span>
           </Link>
         </div>
 
@@ -86,14 +47,54 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Brand statement — editorial pace */}
+      {/* CATEGORIES — Zara-style large image grid */}
+      <section className="bg-background">
+        <div className="container mx-auto px-6 lg:px-10 py-24 lg:py-36">
+          <FadeInSection>
+            <p className="text-center text-muted-foreground text-[9px] tracking-[0.5em] uppercase font-sans mb-16 lg:mb-24">
+              Coming Soon · Drop 01
+            </p>
+          </FadeInSection>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4 lg:gap-6">
+            {categories.map((cat, i) => (
+              <FadeInSection key={cat.name} className={i === 1 ? "md:mt-12" : ""}>
+                <Link to="/shop" className="group block">
+                  {/* Image */}
+                  <div className="relative overflow-hidden aspect-[3/4]">
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  {/* Label */}
+                  <div className="mt-5 flex items-center justify-between">
+                    <p className="text-foreground/80 group-hover:text-foreground text-[11px] tracking-[0.3em] uppercase font-sans transition-colors duration-500 relative">
+                      {cat.name}
+                      <span className="absolute -bottom-1 left-0 w-0 group-hover:w-full h-px bg-foreground transition-all duration-500" />
+                    </p>
+                    <p className="text-muted-foreground text-[9px] tracking-[0.3em] uppercase font-sans">
+                      Coming Soon
+                    </p>
+                  </div>
+                </Link>
+              </FadeInSection>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Brand statement */}
       <FadeInSection>
         <section className="py-36 lg:py-52 bg-foreground">
-          <div className="container mx-auto px-6 lg:px-10 text-center max-w-4xl">
+          <div className="container mx-auto px-6 lg:px-10 text-center max-w-3xl">
             <p className="text-background/30 text-[9px] tracking-[0.5em] uppercase font-sans mb-12">
               The Philosophy
             </p>
-            <p className="font-serif text-3xl md:text-5xl lg:text-6xl text-background tracking-wide leading-[1.15] uppercase">
+            <p className="font-serif text-2xl md:text-4xl lg:text-5xl text-background tracking-wide leading-[1.2] uppercase">
               Confidence isn't loud.
               <br />
               It's the quiet certainty
