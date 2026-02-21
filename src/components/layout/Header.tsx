@@ -16,7 +16,7 @@ const Header = () => {
           </Link>
 
           <Link to="/shop" className="hover:text-gray-500 transition">
-            Collection
+            Releases
           </Link>
 
           <Link to="/cart" className="hover:text-gray-500 transition">
@@ -24,11 +24,11 @@ const Header = () => {
           </Link>
 
           <Link to="/checkout" className="hover:text-gray-500 transition">
-            Checkout
+            Order
           </Link>
 
           <Link to="/login" className="px-4 py-2 border rounded-xl hover:bg-black hover:text-white transition">
-            Login
+            Join Community
           </Link>
         </nav>
       </div>
