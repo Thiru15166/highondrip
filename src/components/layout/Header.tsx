@@ -45,7 +45,7 @@ const Header = () => {
             to="/login"
             className="px-4 py-2 border border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-300"
           >
-            Join Community
+            Account
           </Link>
         </nav>
       </div>
