@@ -38,7 +38,9 @@ export default function Shop() {
   // Load cart from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("cart");
-    if (stored) setCartItems(JSON.parse(stored));
+    if (stored) {
+      setCartItems(JSON.parse(stored));
+    }
   }, []);
 
   // Fetch products
@@ -50,7 +52,7 @@ export default function Shop() {
       snap.forEach((doc) => {
         const data = doc.data() as Product;
 
-        if (data.images && Array.isArray(data.images)) {
+        if (Array.isArray(data.images)) {
           data.images.forEach((img, index) => {
             temp.push({
               productId: doc.id + "-" + index,
@@ -71,35 +73,40 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
-  const handleSizeChange = (id: string, size: string) => {
+  const handleSizeSelect = (id: string, size: string) => {
     setSelectedSizes((prev) => ({ ...prev, [id]: size }));
   };
 
   const handleAddToCart = (card: CardItem) => {
-    const selectedSize = selectedSizes[card.productId];
-    if (!selectedSize) return;
+    const size = selectedSizes[card.productId];
+    if (!size) {
+      alert("Please select size");
+      return;
+    }
 
-    const updated = [...cartItems];
+    let updatedCart = [...cartItems];
 
-    const existingIndex = updated.findIndex(
-      (item) => item.productId === card.productId && item.selectedSize === selectedSize,
+    const existingIndex = updatedCart.findIndex(
+      (item) => item.productId === card.productId && item.selectedSize === size,
     );
 
     if (existingIndex > -1) {
-      updated[existingIndex].quantity += 1;
+      updatedCart[existingIndex].quantity += 1;
     } else {
-      updated.push({
+      updatedCart.push({
         productId: card.productId,
         name: card.name,
         price: card.price,
         image: card.image,
-        selectedSize,
+        selectedSize: size,
         quantity: 1,
       });
     }
 
-    setCartItems(updated);
-    localStorage.setItem("cart", JSON.stringify(updated));
+    setCartItems(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    alert("Added to Cart");
   };
 
   return (
@@ -131,7 +138,7 @@ export default function Shop() {
             {Object.keys(card.sizes || {}).map((size) => (
               <button
                 key={size}
-                onClick={() => handleSizeChange(card.productId, size)}
+                onClick={() => handleSizeSelect(card.productId, size)}
                 className={`border px-3 py-1 text-xs ${
                   selectedSizes[card.productId] === size ? "bg-black text-white" : ""
                 }`}
@@ -142,12 +149,8 @@ export default function Shop() {
           </div>
 
           {/* Add To Cart */}
-          <button
-            onClick={() => handleAddToCart(card)}
-            disabled={!selectedSizes[card.productId]}
-            className="w-full bg-gray-800 text-white text-xs py-2 disabled:bg-gray-400"
-          >
-            {selectedSizes[card.productId] ? "Add To Cart" : "Select Size"}
+          <button onClick={() => handleAddToCart(card)} className="w-full bg-black text-white text-xs py-2">
+            Add To Cart
           </button>
         </div>
       ))}
