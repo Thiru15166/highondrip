@@ -150,31 +150,36 @@ export default function Shop() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Page title */}
-      <div className="pt-32 pb-16 text-center">
-        <p className="text-[10px] tracking-[0.4em] uppercase text-muted-foreground mb-3">
-          Current Collection
+      {/* Page Header */}
+      <div className="pt-40 md:pt-52 pb-20 md:pb-28 text-center">
+        <p className="text-[9px] tracking-[0.5em] uppercase text-muted-foreground mb-4 md:mb-5">
+          Current Drop
         </p>
-        <h1 className="font-serif font-black text-3xl md:text-5xl tracking-[0.1em] uppercase">
+        <h1 className="font-serif font-black text-4xl md:text-6xl lg:text-7xl tracking-[0.12em] uppercase">
           Releases
         </h1>
+        <div className="w-8 h-px bg-foreground/20 mx-auto mt-8 md:mt-10" />
       </div>
 
       {/* Product Grid */}
-      <div className="max-w-7xl mx-auto px-6 pb-24">
+      <div className="max-w-[1400px] mx-auto px-8 md:px-12 lg:px-16 pb-32 md:pb-40">
         {/* Grid Toggle */}
-        <div className="hidden md:flex justify-end mb-8">
+        <div className="hidden md:flex justify-end mb-12">
           <button
             onClick={() => setGridCols((prev) => (prev === 2 ? 3 : prev === 3 ? 4 : 2))}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors duration-300"
+            className="p-2 text-muted-foreground/50 hover:text-foreground transition-colors duration-300"
             aria-label={`Switch to ${gridCols === 2 ? 3 : gridCols === 3 ? 4 : 2}-column view`}
           >
             {gridCols === 2 ? <Grid2X2 className="w-4 h-4" /> : gridCols === 3 ? <Grid3X3 className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
           </button>
         </div>
 
-        <div className={`grid grid-cols-1 gap-x-6 gap-y-16 transition-all duration-500 ease-out ${
-          gridCols === 2 ? "md:grid-cols-2" : gridCols === 3 ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-4"
+        <div className={`grid grid-cols-1 transition-all duration-500 ease-out ${
+          gridCols === 2
+            ? "md:grid-cols-2 gap-x-8 md:gap-x-10 gap-y-16 md:gap-y-20"
+            : gridCols === 3
+              ? "md:grid-cols-2 lg:grid-cols-3 gap-x-6 md:gap-x-8 lg:gap-x-10 gap-y-16 md:gap-y-20 lg:gap-y-24"
+              : "md:grid-cols-2 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-14 md:gap-y-18"
         }`}>
           {cards.map((card, index) => {
             const sizeSelected = !!selectedSizes[card.productId];
@@ -185,23 +190,23 @@ export default function Shop() {
                 <div className="group">
                   {/* Image */}
                   <div
-                    className="relative overflow-hidden aspect-[3/4] bg-secondary mb-4 cursor-pointer"
+                    className="relative overflow-hidden aspect-[3/4] bg-secondary cursor-pointer"
                     onClick={() => openLightbox(index)}
                   >
                     <img
                       src={card.image}
                       alt={card.name}
-                      className="w-full h-full object-cover transition-transform duration-[400ms] ease-out group-hover:scale-[1.06]"
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
                     />
                   </div>
 
                   {/* Info */}
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-start">
+                  <div className="mt-5 space-y-3">
+                    <div className="flex justify-between items-baseline">
                       <div>
-                        <h2 className="text-sm font-medium tracking-wide">{card.name}</h2>
+                        <h2 className="text-[13px] tracking-[0.08em] uppercase font-medium">{card.name}</h2>
                         {card.sleeveType && (
-                          <p className="text-[10px] text-muted-foreground mt-0.5 tracking-wider uppercase">
+                          <p className="text-[10px] text-muted-foreground mt-1 tracking-[0.15em] uppercase">
                             {card.sleeveType.trim().toLowerCase() === "full"
                               ? "Full Sleeve"
                               : card.sleeveType.trim().toLowerCase() === "half"
@@ -210,22 +215,22 @@ export default function Shop() {
                           </p>
                         )}
                       </div>
-                      <p className="text-sm font-serif font-black">₹{card.price}</p>
+                      <p className="text-[13px] font-serif tracking-wide text-muted-foreground">₹{card.price}</p>
                     </div>
 
                     {card.description && (
-                      <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
+                      <p className="text-[11px] text-muted-foreground/70 leading-[1.7] line-clamp-2 tracking-wide">
                         {card.description}
                       </p>
                     )}
 
                     {/* Sizes */}
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="flex gap-2 flex-wrap pt-1">
                       {Object.keys(card.sizes || {}).map((size) => (
                         <button
                           key={size}
                           onClick={() => handleSizeSelect(card.productId, size)}
-                          className={`border px-3 py-1.5 text-[10px] tracking-[0.15em] uppercase transition-all duration-300 ${
+                          className={`border px-3.5 py-1.5 text-[9px] tracking-[0.2em] uppercase transition-all duration-300 ${
                             selectedSizes[card.productId] === size
                               ? "bg-foreground text-background border-foreground"
                               : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
@@ -240,7 +245,7 @@ export default function Shop() {
                     <button
                       onClick={() => handleAddToCart(card)}
                       disabled={!sizeSelected}
-                      className={`w-full py-3 text-[10px] tracking-[0.25em] uppercase font-medium transition-all duration-500 flex items-center justify-center gap-2 ${
+                      className={`w-full py-3.5 text-[9px] tracking-[0.3em] uppercase font-medium transition-all duration-500 flex items-center justify-center gap-2 ${
                         justAdded
                           ? "bg-accent text-accent-foreground"
                           : sizeSelected
