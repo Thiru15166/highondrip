@@ -124,12 +124,12 @@ const Index = () => {
 
       {/* Brand statement */}
       <FadeInSection>
-        <section className="py-36 lg:py-52 bg-foreground">
+        <section className="py-20 md:py-36 lg:py-52 bg-foreground">
           <div className="container mx-auto px-6 lg:px-10 text-center max-w-3xl">
-            <p className="text-background/30 text-[9px] tracking-[0.5em] uppercase font-sans mb-12">
+            <p className="text-background/30 text-[8px] md:text-[9px] tracking-[0.5em] uppercase font-sans mb-8 md:mb-12">
               The Philosophy
             </p>
-            <p className="font-serif text-2xl md:text-4xl lg:text-5xl text-background tracking-wide leading-[1.2] uppercase">
+            <p className="font-serif text-xl md:text-4xl lg:text-5xl text-background tracking-wide leading-[1.3] md:leading-[1.2] uppercase">
               Confidence isn't loud.
               <br />
               It's the quiet certainty
@@ -144,7 +144,7 @@ const Index = () => {
 
       {/* Minimal CTA */}
       <FadeInSection>
-        <section className="py-28 lg:py-36 bg-background">
+        <section className="py-20 md:py-28 lg:py-36 bg-background">
           <div className="container mx-auto px-6 lg:px-10 text-center">
             <p className="text-[9px] tracking-[0.5em] uppercase text-muted-foreground font-sans mb-4">
               Limited Quantities
@@ -154,7 +154,7 @@ const Index = () => {
             </p>
             <Link
               to="/shop"
-              className="inline-block bg-foreground text-background px-14 py-4 text-[10px] tracking-[0.35em] uppercase font-sans transition-all duration-500 hover:bg-foreground/85"
+              className="inline-block bg-foreground text-background px-10 md:px-14 py-4 min-h-[48px] flex items-center justify-center text-[10px] tracking-[0.35em] uppercase font-sans transition-all duration-500 hover:bg-foreground/85"
             >
               View All Releases
             </Link>

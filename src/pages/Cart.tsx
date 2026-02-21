@@ -64,34 +64,34 @@ const Cart = () => {
         </div>
 
         {/* Header */}
-        <div className="text-center pt-32 pb-16">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-muted-foreground mb-4">
+        <div className="text-center pt-24 md:pt-32 pb-12 md:pb-16 px-4">
+          <p className="text-[9px] md:text-[10px] tracking-[0.4em] uppercase text-muted-foreground mb-3 md:mb-4">
             Review Your Selection
           </p>
-          <h1 className="font-serif font-black text-3xl md:text-4xl tracking-[0.2em] uppercase">
+          <h1 className="font-serif font-black text-2xl md:text-4xl tracking-[0.15em] md:tracking-[0.2em] uppercase">
             Your Cart
           </h1>
-          <div className="w-8 h-[1px] bg-foreground/20 mx-auto mt-6" />
+          <div className="w-8 h-[1px] bg-foreground/20 mx-auto mt-5 md:mt-6" />
         </div>
 
-        <div className="max-w-[1200px] mx-auto px-6 md:px-12 pb-32">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-12 pb-32 md:pb-32">
           {cartItems.length === 0 ? (
-            <div className="text-center py-24">
+            <div className="text-center py-16 md:py-24">
               <p className="text-muted-foreground text-sm tracking-[0.15em] uppercase mb-8">
                 Your cart is empty
               </p>
               <button
                 onClick={() => navigate("/shop")}
-                className="font-serif text-xs tracking-[0.25em] uppercase border border-foreground/20 px-10 py-4 hover:bg-foreground hover:text-background transition-all duration-500"
+                className="font-serif text-xs tracking-[0.25em] uppercase border border-foreground/20 px-10 py-4 min-h-[48px] hover:bg-foreground hover:text-background transition-all duration-500"
               >
                 Continue Shopping
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-16">
               {/* Left — Cart Items */}
               <div className="lg:col-span-2 space-y-0">
-                <div className="flex justify-between items-baseline mb-8">
+                <div className="flex justify-between items-baseline mb-6 md:mb-8">
                   <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
                     {cartItems.length} {cartItems.length === 1 ? "Item" : "Items"}
                   </p>
@@ -100,14 +100,14 @@ const Cart = () => {
                 {cartItems.map((item, index) => (
                   <div key={index}>
                     <div
-                      className={`flex gap-6 md:gap-10 py-8 transition-all duration-400 ${
+                      className={`flex gap-4 md:gap-10 py-6 md:py-8 transition-all duration-400 ${
                         removingIndex === index
                           ? "opacity-0 translate-x-4"
                           : "opacity-100 translate-x-0"
                       }`}
                     >
                       {/* Image */}
-                      <div className="w-28 h-36 md:w-36 md:h-44 flex-shrink-0 overflow-hidden bg-secondary">
+                      <div className="w-24 h-32 md:w-36 md:h-44 flex-shrink-0 overflow-hidden bg-secondary">
                         <img
                           src={item.image}
                           alt={item.name}
@@ -116,22 +116,22 @@ const Cart = () => {
                       </div>
 
                       {/* Details */}
-                      <div className="flex-1 flex flex-col justify-between py-1">
+                      <div className="flex-1 flex flex-col justify-between py-0 md:py-1">
                         <div>
                           <h3 className="font-serif text-sm md:text-base tracking-[0.1em] uppercase leading-tight">
                             {item.name}
                           </h3>
-                          <p className="text-[11px] tracking-[0.15em] text-muted-foreground mt-2 uppercase">
+                          <p className="text-[10px] md:text-[11px] tracking-[0.15em] text-muted-foreground mt-1.5 md:mt-2 uppercase">
                             Size — {item.size}
                           </p>
                         </div>
 
-                        <div className="flex items-end justify-between mt-6">
+                        <div className="flex items-end justify-between mt-4 md:mt-6">
                           {/* Quantity */}
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-3 md:gap-4">
                             <button
                               onClick={() => decreaseQty(index)}
-                              className="w-8 h-8 flex items-center justify-center border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-300"
+                              className="w-9 h-9 md:w-8 md:h-8 flex items-center justify-center border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-300"
                             >
                               <Minus className="w-3 h-3" />
                             </button>
@@ -140,7 +140,7 @@ const Cart = () => {
                             </span>
                             <button
                               onClick={() => increaseQty(index)}
-                              className="w-8 h-8 flex items-center justify-center border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-300"
+                              className="w-9 h-9 md:w-8 md:h-8 flex items-center justify-center border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-300"
                             >
                               <Plus className="w-3 h-3" />
                             </button>
@@ -199,14 +199,14 @@ const Cart = () => {
 
                   <button
                     onClick={() => navigate("/checkout")}
-                    className="w-full py-4 bg-foreground text-background font-serif text-xs tracking-[0.25em] uppercase hover:bg-foreground/90 transition-all duration-500"
+                    className="w-full py-4 min-h-[48px] bg-foreground text-background font-serif text-xs tracking-[0.25em] uppercase hover:bg-foreground/90 transition-all duration-500"
                   >
                     Secure Order
                   </button>
 
                   <button
                     onClick={() => navigate("/shop")}
-                    className="w-full text-center mt-4 text-[10px] tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 py-3"
+                    className="w-full text-center mt-4 text-[10px] tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 py-3 min-h-[44px]"
                   >
                     Continue Shopping
                   </button>
@@ -215,6 +215,22 @@ const Cart = () => {
             </div>
           )}
         </div>
+
+        {/* Mobile Sticky CTA */}
+        {cartItems.length > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-background/95 backdrop-blur-md border-t border-border/40 p-4 z-40">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">Total</span>
+              <span className="font-serif font-black text-lg">₹{totalAmount}</span>
+            </div>
+            <button
+              onClick={() => navigate("/checkout")}
+              className="w-full py-4 min-h-[48px] bg-foreground text-background font-serif text-xs tracking-[0.25em] uppercase"
+            >
+              Secure Order
+            </button>
+          </div>
+        )}
       </div>
     </Layout>
   );
