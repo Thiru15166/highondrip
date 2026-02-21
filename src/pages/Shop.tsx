@@ -164,13 +164,16 @@ export default function Shop() {
       {/* Product Grid */}
       <div className="max-w-[1400px] mx-auto px-4 md:px-12 lg:px-16 pb-24 md:pb-40">
         {/* Grid Toggle */}
-        <div className="flex justify-end mb-8 md:mb-12">
+        <div className="flex items-center justify-between mb-8 md:mb-12">
+          <p className="text-[9px] tracking-[0.3em] uppercase text-muted-foreground/40 font-medium">
+            {cards.length} {cards.length === 1 ? "piece" : "pieces"}
+          </p>
           <button
             onClick={() => setGridCols((prev) => (prev === 2 ? 3 : prev === 3 ? 4 : 2))}
-            className="relative z-10 p-3 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground/50 hover:text-foreground active:text-foreground active:scale-95 active:opacity-70 transition-all duration-200 touch-manipulation select-none"
+            className="relative z-10 min-h-[48px] min-w-[48px] p-3 flex items-center justify-center rounded-sm text-muted-foreground/60 hover:text-foreground active:text-foreground active:scale-105 active:opacity-80 transition-all duration-200 touch-manipulation select-none"
             aria-label={`Switch to ${gridCols === 2 ? 3 : gridCols === 3 ? 4 : 2}-column view`}
           >
-            {gridCols === 2 ? <Grid2X2 className="w-5 h-5 pointer-events-none" /> : gridCols === 3 ? <Grid3X3 className="w-5 h-5 pointer-events-none" /> : <LayoutGrid className="w-5 h-5 pointer-events-none" />}
+            {gridCols === 2 ? <Grid2X2 className="w-[18px] h-[18px] pointer-events-none transition-transform duration-300" /> : gridCols === 3 ? <Grid3X3 className="w-[18px] h-[18px] pointer-events-none transition-transform duration-300" /> : <LayoutGrid className="w-[18px] h-[18px] pointer-events-none transition-transform duration-300" />}
           </button>
         </div>
 
