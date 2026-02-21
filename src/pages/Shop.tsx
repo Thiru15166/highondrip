@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
-import { Check, X, ChevronLeft, ChevronRight, Grid2X2, Grid3X3, LayoutGrid } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Grid2X2, Grid3X3, LayoutGrid } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FadeInSection from "@/components/FadeInSection";
 import MiniCart from "@/components/MiniCart";
+import ProductSizeSheet from "@/components/ProductSizeSheet";
 
 interface Product {
   name: string;
@@ -37,12 +38,12 @@ interface CartItem {
 
 export default function Shop() {
   const [cards, setCards] = useState<CardItem[]>([]);
-  const [selectedSizes, setSelectedSizes] = useState<{ [key: string]: string }>({});
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [miniCartOpen, setMiniCartOpen] = useState(false);
-  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [gridCols, setGridCols] = useState<2 | 3 | 4>(3);
+  const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
+  const [activeProduct, setActiveProduct] = useState<CardItem | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("cart");
@@ -74,16 +75,17 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
-  const handleSizeSelect = (id: string, size: string) => {
-    setSelectedSizes((prev) => ({ ...prev, [id]: size }));
+  const handleOpenSizeSheet = (card: CardItem) => {
+    setActiveProduct(card);
+    setSizeSheetOpen(true);
   };
 
-  const handleAddToCart = (card: CardItem) => {
-    const selectedSize = selectedSizes[card.productId];
-    if (!selectedSize) return;
+  const handleAddFromSheet = (productId: string, size: string) => {
+    const card = cards.find((c) => c.productId === productId);
+    if (!card) return;
 
     const existingIndex = cartItems.findIndex(
-      (item) => item.productId === card.productId && item.selectedSize === selectedSize
+      (item) => item.productId === productId && item.selectedSize === size
     );
 
     let updatedCart = [...cartItems];
@@ -91,28 +93,18 @@ export default function Shop() {
       updatedCart[existingIndex].quantity += 1;
     } else {
       updatedCart.push({
-        productId: card.productId,
+        productId,
         name: card.name,
         price: card.price,
         image: card.image,
-        selectedSize,
+        selectedSize: size,
         quantity: 1,
       });
     }
 
     setCartItems(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
-
-    // Confirmation animation
-    setAddedIds((prev) => new Set(prev).add(card.productId));
-    setTimeout(() => {
-      setAddedIds((prev) => {
-        const next = new Set(prev);
-        next.delete(card.productId);
-        return next;
-      });
-      setMiniCartOpen(true);
-    }, 600);
+    setTimeout(() => setMiniCartOpen(true), 800);
   };
 
   const openLightbox = useCallback((index: number) => {
@@ -185,9 +177,6 @@ export default function Shop() {
               : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 md:gap-x-6 gap-y-8 md:gap-y-18"
         }`}>
           {cards.map((card, index) => {
-            const sizeSelected = !!selectedSizes[card.productId];
-            const justAdded = addedIds.has(card.productId);
-
             return (
               <FadeInSection key={card.productId}>
                 <div className="group">
@@ -228,43 +217,12 @@ export default function Shop() {
                       </p>
                     )}
 
-                    {/* Sizes */}
-                    <div className="flex gap-2 flex-wrap pt-1">
-                      {Object.keys(card.sizes || {}).map((size) => (
-                        <button
-                          key={size}
-                          onClick={() => handleSizeSelect(card.productId, size)}
-                          className={`border px-3.5 py-1.5 text-[9px] tracking-[0.2em] uppercase transition-all duration-300 ${
-                            selectedSizes[card.productId] === size
-                              ? "bg-foreground text-background border-foreground"
-                              : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-                          }`}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-
                     {/* CTA */}
                     <button
-                      onClick={() => handleAddToCart(card)}
-                      disabled={!sizeSelected}
-                      className={`w-full py-3.5 min-h-[48px] text-[9px] tracking-[0.3em] uppercase font-medium transition-all duration-500 flex items-center justify-center gap-2 ${
-                        justAdded
-                          ? "bg-accent text-accent-foreground"
-                          : sizeSelected
-                            ? "bg-foreground text-background hover:bg-foreground/90"
-                            : "bg-muted text-muted-foreground cursor-not-allowed"
-                      }`}
+                      onClick={() => handleOpenSizeSheet(card)}
+                      className="w-full py-3.5 min-h-[48px] text-[9px] tracking-[0.3em] uppercase font-medium transition-all duration-500 flex items-center justify-center bg-foreground text-background hover:bg-foreground/90"
                     >
-                      {justAdded ? (
-                        <>
-                          <Check className="w-3.5 h-3.5" />
-                          Secured
-                        </>
-                      ) : (
-                        "Secure the Drip"
-                      )}
+                      Secure the Drip
                     </button>
                   </div>
                 </div>
@@ -330,6 +288,14 @@ export default function Shop() {
           </div>
         </div>
       )}
+
+      {/* Size Selection Sheet */}
+      <ProductSizeSheet
+        open={sizeSheetOpen}
+        onOpenChange={setSizeSheetOpen}
+        product={activeProduct}
+        onAddToCart={handleAddFromSheet}
+      />
 
       {/* Mini Cart */}
       <MiniCart
