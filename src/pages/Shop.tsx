@@ -174,12 +174,12 @@ export default function Shop() {
           </button>
         </div>
 
-        <div className={`grid grid-cols-1 transition-all duration-500 ease-out ${
+        <div className={`grid transition-all duration-500 ease-out ${
           gridCols === 2
-            ? "md:grid-cols-2 gap-x-8 md:gap-x-10 gap-y-16 md:gap-y-20"
+            ? "grid-cols-2 gap-x-4 md:gap-x-10 gap-y-10 md:gap-y-20"
             : gridCols === 3
-              ? "md:grid-cols-2 lg:grid-cols-3 gap-x-6 md:gap-x-8 lg:gap-x-10 gap-y-16 md:gap-y-20 lg:gap-y-24"
-              : "md:grid-cols-2 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-14 md:gap-y-18"
+              ? "grid-cols-2 lg:grid-cols-3 gap-x-4 md:gap-x-8 lg:gap-x-10 gap-y-10 md:gap-y-20 lg:gap-y-24"
+              : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 md:gap-x-6 gap-y-8 md:gap-y-18"
         }`}>
           {cards.map((card, index) => {
             const sizeSelected = !!selectedSizes[card.productId];
