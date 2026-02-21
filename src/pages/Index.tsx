@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import FadeInSection from "@/components/FadeInSection";
-import editorialCover from "@/assets/editorial-cover.jpg";
+import dragonLogo from "@/assets/dragon-logo.png";
 import categoryHoodies from "@/assets/category-hoodies.jpg";
 import categoryTshirts from "@/assets/category-tshirts.jpg";
 import categoryPants from "@/assets/category-pants.jpg";
@@ -15,35 +15,70 @@ const categories = [
 const Index = () => {
   return (
     <Layout>
-      {/* HERO — Full-screen minimal */}
-      <section className="relative h-screen w-full overflow-hidden flex items-center justify-center -mt-[72px]">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
-          style={{ backgroundImage: `url(${editorialCover})` }}
-        />
-        <div className="absolute inset-0 bg-foreground/50" />
+      {/* HERO — Cinematic magazine cover */}
+      <section className="relative h-screen w-full overflow-hidden flex items-center justify-center -mt-[72px] bg-[hsl(0,0%,5%)]">
+        {/* Subtle radial glow behind logo */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-[500px] h-[500px] md:w-[700px] md:h-[700px] rounded-full bg-background/[0.03] blur-[120px]" />
+        </div>
 
-        <div className="relative z-10 flex flex-col items-center text-center px-6">
-          <p className="text-background/50 text-[9px] md:text-[10px] tracking-[0.6em] uppercase font-sans mb-8">
+        {/* Side text — left */}
+        <div className="absolute left-6 md:left-10 top-1/2 -translate-y-1/2 z-10 hidden md:block">
+          <p className="text-background/20 text-[9px] tracking-[0.5em] uppercase font-sans [writing-mode:vertical-lr] rotate-180">
             Upcoming Release
           </p>
-          <h1 className="font-serif font-black text-background text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-[0.12em] uppercase leading-[0.85] mb-14">
+        </div>
+
+        {/* Side text — right */}
+        <div className="absolute right-6 md:right-10 top-1/2 -translate-y-1/2 z-10 hidden md:block">
+          <p className="text-background/20 text-[9px] tracking-[0.5em] uppercase font-sans [writing-mode:vertical-lr]">
+            Drop 01 · SS '26
+          </p>
+        </div>
+
+        {/* Corner labels */}
+        <p className="absolute top-28 left-6 md:left-10 text-background/15 text-[8px] tracking-[0.4em] uppercase font-sans z-10">
+          Limited Issue
+        </p>
+        <p className="absolute top-28 right-6 md:right-10 text-background/15 text-[8px] tracking-[0.4em] uppercase font-sans z-10">
+          Est. 2025
+        </p>
+
+        {/* Main content */}
+        <div className="relative z-10 flex flex-col items-center text-center px-6">
+          {/* Dragon logo */}
+          <div className="relative mb-10 md:mb-14">
+            <img
+              src={dragonLogo}
+              alt="HIGH ON DRIP Dragon"
+              className="w-32 h-32 md:w-44 md:h-44 lg:w-52 lg:h-52 object-contain drop-shadow-[0_0_60px_rgba(255,255,255,0.08)]"
+            />
+          </div>
+
+          {/* Wordmark */}
+          <h1 className="font-serif font-black text-background text-4xl sm:text-5xl md:text-7xl lg:text-8xl tracking-[0.15em] uppercase leading-[0.85] mb-4 drop-shadow-[0_0_40px_rgba(255,255,255,0.06)]">
             High
             <br />
             On Drip
           </h1>
+
+          <p className="text-background/25 text-[9px] md:text-[10px] tracking-[0.5em] uppercase font-sans mb-12">
+            Curated Essentials
+          </p>
+
+          {/* CTA */}
           <Link
             to="/shop"
-            className="group relative inline-block border border-background/30 text-background px-14 py-4 text-[10px] tracking-[0.35em] uppercase font-sans overflow-hidden transition-all duration-700 hover:border-background/60"
+            className="group relative inline-block border border-background/20 text-background/70 px-14 py-4 text-[10px] tracking-[0.35em] uppercase font-sans overflow-hidden transition-all duration-700 hover:border-background/50 hover:text-background"
           >
-            <span className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-all duration-700" />
-            <span className="relative">View Drop</span>
+            <span className="absolute inset-0 bg-background/0 group-hover:bg-background/[0.06] transition-all duration-700" />
+            <span className="relative">Enter The Drop</span>
           </Link>
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
-          <div className="w-px h-8 bg-background/20 animate-pulse" />
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
+          <div className="w-px h-10 bg-background/10 animate-pulse" />
         </div>
       </section>
 
