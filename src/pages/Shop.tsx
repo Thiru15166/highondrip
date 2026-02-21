@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
-import Layout from "@/components/layout/Layout";
-import MiniCart from "@/components/MiniCart";
-import { Check } from "lucide-react";
 
 interface Product {
   id: string;
@@ -11,8 +8,8 @@ interface Product {
   price: number;
   sizes: { [key: string]: number };
   images: string[];
-  description?: string;
   sleeveType?: string;
+  description?: string;
 }
 
 interface CardItem {
@@ -21,8 +18,8 @@ interface CardItem {
   price: number;
   image: string;
   sizes: { [key: string]: number };
-  description?: string;
   sleeveType?: string;
+  description?: string;
 }
 
 interface CartItem {
@@ -30,20 +27,16 @@ interface CartItem {
   name: string;
   price: number;
   image: string;
-  description?: string;
-  sleeveType?: string;
   selectedSize: string;
   quantity: number;
 }
 
-const Shop = () => {
+export default function Shop() {
   const [cards, setCards] = useState<CardItem[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<{ [key: string]: string }>({});
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [addedId, setAddedId] = useState<string | null>(null);
 
-  // Load cart from localStorage
+  // Load cart
   useEffect(() => {
     const stored = localStorage.getItem("cart");
     if (stored) setCartItems(JSON.parse(stored));
@@ -66,8 +59,8 @@ const Shop = () => {
               price: data.price,
               image: img,
               sizes: data.sizes,
-              description: data.description,
               sleeveType: data.sleeveType,
+              description: data.description,
             });
           });
         }
@@ -87,108 +80,73 @@ const Shop = () => {
     const selectedSize = selectedSizes[card.productId];
     if (!selectedSize) return;
 
-    const existingCart = [...cartItems];
-    const existingIndex = existingCart.findIndex(
-      (item) => item.productId === card.productId && item.selectedSize === selectedSize,
-    );
+    const existing = [...cartItems];
+    const index = existing.findIndex((item) => item.productId === card.productId && item.selectedSize === selectedSize);
 
-    if (existingIndex > -1) {
-      existingCart[existingIndex].quantity += 1;
+    if (index > -1) {
+      existing[index].quantity += 1;
     } else {
-      existingCart.push({
+      existing.push({
         productId: card.productId,
         name: card.name,
         price: card.price,
         image: card.image,
-        description: card.description,
-        sleeveType: card.sleeveType,
         selectedSize,
         quantity: 1,
       });
     }
 
-    setCartItems(existingCart);
-    localStorage.setItem("cart", JSON.stringify(existingCart));
-
-    setAddedId(card.productId);
-    setTimeout(() => setAddedId(null), 1200);
-
-    setCartOpen(true);
+    setCartItems(existing);
+    localStorage.setItem("cart", JSON.stringify(existing));
   };
 
   return (
-    <Layout>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6 p-6">
-        {cards.map((card) => {
-          const sizeSelected = !!selectedSizes[card.productId];
-          const justAdded = addedId === card.productId;
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6">
+      {cards.map((card) => (
+        <div key={card.productId} className="space-y-3 border p-4">
+          {/* Image */}
+          <img src={card.image} alt={card.name} className="w-full aspect-[3/4] object-cover" />
 
-          return (
-            <div key={card.productId} className="group">
-              {/* Image */}
-              <div className="relative overflow-hidden bg-secondary mb-4">
-                <img src={card.image} alt={card.name} className="w-full aspect-[3/4] object-cover" />
-              </div>
+          {/* Name + Price */}
+          <div className="flex justify-between">
+            <h2 className="text-sm font-medium">{card.name}</h2>
+            <p className="text-sm">₹{card.price}</p>
+          </div>
 
-              {/* Info */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-baseline">
-                  <h2 className="text-sm font-medium tracking-wide">{card.name}</h2>
-                  <p className="text-sm text-muted-foreground">₹{card.price}</p>
-                </div>
+          {/* Sleeve Type */}
+          <p className="text-xs text-gray-500">
+            {card.sleeveType?.toLowerCase() === "full" && "Full Sleeve Shirt"}
+            {card.sleeveType?.toLowerCase() === "half" && "Half Sleeve Shirt"}
+          </p>
 
-                {/* Sleeve Type */}
-                {card.sleeveType && (
-                  <p className="text-xs text-gray-500">
-                    {card.sleeveType === "half" ? "Half Hand Shirt" : "Full Hand Shirt"}
-                  </p>
-                )}
+          {/* Description */}
+          {card.description && <p className="text-xs text-gray-600">{card.description}</p>}
 
-                {/* Description */}
-                {card.description && <p className="text-xs text-gray-600">{card.description}</p>}
+          {/* Size Selection */}
+          <div className="flex gap-2 flex-wrap">
+            {Object.keys(card.sizes || {}).map((size) => (
+              <button
+                key={size}
+                onClick={() => handleSizeChange(card.productId, size)}
+                className={`border px-3 py-1 text-xs ${
+                  selectedSizes[card.productId] === size ? "bg-black text-white" : ""
+                }`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
 
-                {/* Sizes */}
-                <div className="flex gap-2 pt-2">
-                  {Object.keys(card.sizes || {}).map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => handleSizeChange(card.productId, size)}
-                      className={`min-w-[36px] h-8 px-2 text-[11px] border ${
-                        selectedSizes[card.productId] === size ? "bg-black text-white" : "border-gray-300"
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Button */}
-                <button
-                  onClick={() => handleAddToCart(card)}
-                  disabled={!sizeSelected}
-                  className={`w-full h-10 text-[12px] mt-3 ${
-                    sizeSelected ? "bg-black text-white" : "bg-gray-300 text-gray-600 cursor-not-allowed"
-                  }`}
-                >
-                  {justAdded ? (
-                    <span className="flex items-center justify-center gap-1">
-                      <Check size={16} /> Added
-                    </span>
-                  ) : sizeSelected ? (
-                    "Secure The Drip"
-                  ) : (
-                    "Select Size"
-                  )}
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <MiniCart open={cartOpen} onOpenChange={setCartOpen} items={cartItems} onUpdateItems={setCartItems} />
-    </Layout>
+          {/* Add To Cart */}
+          <button
+            onClick={() => handleAddToCart(card)}
+            disabled={!selectedSizes[card.productId]}
+            className="w-full bg-black text-white text-xs py-2 disabled:bg-gray-400"
+          >
+            {selectedSizes[card.productId] ? "Add To Cart" : "Select Size"}
+          </button>
+        </div>
+      ))}
+    </div>
   );
-};
-
-export default Shop;
+}
