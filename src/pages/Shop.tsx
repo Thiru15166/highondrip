@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
-import { Check } from "lucide-react";
+import { Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FadeInSection from "@/components/FadeInSection";
@@ -41,6 +41,7 @@ export default function Shop() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [miniCartOpen, setMiniCartOpen] = useState(false);
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("cart");
@@ -113,6 +114,37 @@ export default function Shop() {
     }, 600);
   };
 
+  const openLightbox = useCallback((index: number) => {
+    setLightboxIndex(index);
+    document.body.style.overflow = "hidden";
+  }, []);
+
+  const closeLightbox = useCallback(() => {
+    setLightboxIndex(null);
+    document.body.style.overflow = "";
+  }, []);
+
+  const navigateLightbox = useCallback((dir: 1 | -1) => {
+    setLightboxIndex((prev) => {
+      if (prev === null) return null;
+      const next = prev + dir;
+      if (next < 0 || next >= cards.length) return prev;
+      return next;
+    });
+  }, [cards.length]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") navigateLightbox(1);
+      if (e.key === "ArrowLeft") navigateLightbox(-1);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightboxIndex, closeLightbox, navigateLightbox]);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -130,7 +162,7 @@ export default function Shop() {
       {/* Product Grid */}
       <div className="max-w-7xl mx-auto px-6 pb-24">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-16">
-          {cards.map((card) => {
+          {cards.map((card, index) => {
             const sizeSelected = !!selectedSizes[card.productId];
             const justAdded = addedIds.has(card.productId);
 
@@ -138,11 +170,14 @@ export default function Shop() {
               <FadeInSection key={card.productId}>
                 <div className="group">
                   {/* Image */}
-                  <div className="relative overflow-hidden aspect-[3/4] bg-secondary mb-4">
+                  <div
+                    className="relative overflow-hidden aspect-[3/4] bg-secondary mb-4 cursor-pointer"
+                    onClick={() => openLightbox(index)}
+                  >
                     <img
                       src={card.image}
                       alt={card.name}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                      className="w-full h-full object-cover transition-transform duration-[400ms] ease-out group-hover:scale-[1.06]"
                     />
                   </div>
 
@@ -217,6 +252,61 @@ export default function Shop() {
       </div>
 
       <Footer />
+
+      {/* Fullscreen Lightbox */}
+      {lightboxIndex !== null && cards[lightboxIndex] && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center animate-fade-in"
+          onClick={closeLightbox}
+        >
+          {/* Close */}
+          <button
+            onClick={closeLightbox}
+            className="absolute top-6 right-6 text-white/60 hover:text-white transition-opacity duration-300 z-10"
+            aria-label="Close"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          {/* Prev */}
+          {lightboxIndex > 0 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); navigateLightbox(-1); }}
+              className="absolute left-4 md:left-8 text-white/40 hover:text-white transition-opacity duration-300 z-10"
+              aria-label="Previous"
+            >
+              <ChevronLeft className="w-8 h-8" />
+            </button>
+          )}
+
+          {/* Image */}
+          <img
+            key={lightboxIndex}
+            src={cards[lightboxIndex].image}
+            alt={cards[lightboxIndex].name}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[85vh] max-w-[90vw] object-contain animate-scale-in touch-pinch-zoom"
+          />
+
+          {/* Next */}
+          {lightboxIndex < cards.length - 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); navigateLightbox(1); }}
+              className="absolute right-4 md:right-8 text-white/40 hover:text-white transition-opacity duration-300 z-10"
+              aria-label="Next"
+            >
+              <ChevronRight className="w-8 h-8" />
+            </button>
+          )}
+
+          {/* Caption */}
+          <div className="absolute bottom-8 text-center">
+            <p className="text-white/80 text-xs tracking-[0.2em] uppercase">
+              {cards[lightboxIndex].name}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Mini Cart */}
       <MiniCart
