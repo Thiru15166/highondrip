@@ -151,18 +151,18 @@ export default function Shop() {
       <Header />
 
       {/* Page Header */}
-      <div className="pt-40 md:pt-52 pb-20 md:pb-28 text-center">
-        <p className="text-[9px] tracking-[0.5em] uppercase text-muted-foreground mb-4 md:mb-5">
+      <div className="pt-28 md:pt-52 pb-14 md:pb-28 text-center px-4">
+        <p className="text-[8px] md:text-[9px] tracking-[0.5em] uppercase text-muted-foreground mb-3 md:mb-5">
           Current Drop
         </p>
-        <h1 className="font-serif font-black text-4xl md:text-6xl lg:text-7xl tracking-[0.12em] uppercase">
+        <h1 className="font-serif font-black text-3xl md:text-6xl lg:text-7xl tracking-[0.12em] uppercase">
           Releases
         </h1>
-        <div className="w-8 h-px bg-foreground/20 mx-auto mt-8 md:mt-10" />
+        <div className="w-8 h-px bg-foreground/20 mx-auto mt-6 md:mt-10" />
       </div>
 
       {/* Product Grid */}
-      <div className="max-w-[1400px] mx-auto px-8 md:px-12 lg:px-16 pb-32 md:pb-40">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-12 lg:px-16 pb-24 md:pb-40">
         {/* Grid Toggle */}
         <div className="hidden md:flex justify-end mb-12">
           <button
@@ -190,12 +190,13 @@ export default function Shop() {
                 <div className="group">
                   {/* Image */}
                   <div
-                    className="relative overflow-hidden aspect-[3/4] bg-secondary cursor-pointer"
+                    className="relative overflow-hidden aspect-[3/4] bg-secondary cursor-pointer active:scale-[0.98] transition-transform duration-300 md:active:scale-100"
                     onClick={() => openLightbox(index)}
                   >
                     <img
                       src={card.image}
                       alt={card.name}
+                      loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
                     />
                   </div>
@@ -245,7 +246,7 @@ export default function Shop() {
                     <button
                       onClick={() => handleAddToCart(card)}
                       disabled={!sizeSelected}
-                      className={`w-full py-3.5 text-[9px] tracking-[0.3em] uppercase font-medium transition-all duration-500 flex items-center justify-center gap-2 ${
+                      className={`w-full py-3.5 min-h-[48px] text-[9px] tracking-[0.3em] uppercase font-medium transition-all duration-500 flex items-center justify-center gap-2 ${
                         justAdded
                           ? "bg-accent text-accent-foreground"
                           : sizeSelected

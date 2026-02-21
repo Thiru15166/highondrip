@@ -128,17 +128,17 @@ export default function Checkout() {
         </div>
 
         {/* Header */}
-        <div className="text-center pt-32 pb-16">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-muted-foreground mb-4">
+        <div className="text-center pt-24 md:pt-32 pb-10 md:pb-16 px-4">
+          <p className="text-[9px] md:text-[10px] tracking-[0.4em] uppercase text-muted-foreground mb-3 md:mb-4">
             Complete Your Purchase
           </p>
-          <h1 className="font-serif font-black text-3xl md:text-4xl tracking-[0.2em] uppercase">
+          <h1 className="font-serif font-black text-2xl md:text-4xl tracking-[0.15em] md:tracking-[0.2em] uppercase">
             Order
           </h1>
-          <div className="w-8 h-[1px] bg-foreground/20 mx-auto mt-6" />
+          <div className="w-8 h-[1px] bg-foreground/20 mx-auto mt-5 md:mt-6" />
         </div>
 
-        <div className="max-w-[1200px] mx-auto px-6 md:px-12 pb-32">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-12 pb-28 md:pb-32">
           {cartItems.length === 0 ? (
             <div className="text-center py-24">
               <p className="text-muted-foreground text-sm tracking-[0.15em] uppercase mb-8">
@@ -146,7 +146,7 @@ export default function Checkout() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-16">
               {/* Left — Shipping Details */}
               <div className="lg:col-span-2 space-y-12">
                 {/* Shipping Form */}
@@ -206,9 +206,9 @@ export default function Checkout() {
                   <div className="space-y-0">
                     {cartItems.map((item, index) => (
                       <div key={index}>
-                        <div className="flex gap-6 md:gap-10 py-8">
+                        <div className="flex gap-4 md:gap-10 py-6 md:py-8">
                           {/* Image */}
-                          <div className="w-24 h-32 md:w-28 md:h-36 flex-shrink-0 overflow-hidden bg-secondary">
+                          <div className="w-20 h-28 md:w-28 md:h-36 flex-shrink-0 overflow-hidden bg-secondary">
                             <img
                               src={item.image}
                               alt={item.name}
@@ -239,7 +239,7 @@ export default function Checkout() {
                               <div className="flex items-center gap-4">
                                 <button
                                   onClick={() => decreaseQty(index)}
-                                  className="w-8 h-8 flex items-center justify-center border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-300"
+                              className="w-9 h-9 md:w-8 md:h-8 flex items-center justify-center border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-300"
                                 >
                                   <Minus className="w-3 h-3" />
                                 </button>
@@ -248,7 +248,7 @@ export default function Checkout() {
                                 </span>
                                 <button
                                   onClick={() => increaseQty(index)}
-                                  className="w-8 h-8 flex items-center justify-center border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-300"
+                                  className="w-9 h-9 md:w-8 md:h-8 flex items-center justify-center border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-colors duration-300"
                                 >
                                   <Plus className="w-3 h-3" />
                                 </button>
@@ -310,7 +310,7 @@ export default function Checkout() {
                   <button
                     onClick={handlePayment}
                     disabled={loading}
-                    className="w-full py-4 bg-foreground text-background font-serif text-xs tracking-[0.25em] uppercase hover:bg-foreground/90 transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-4 min-h-[48px] bg-foreground text-background font-serif text-xs tracking-[0.25em] uppercase hover:bg-foreground/90 transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? "Processing..." : "Secure Order"}
                   </button>
@@ -323,6 +323,23 @@ export default function Checkout() {
             </div>
           )}
         </div>
+
+        {/* Mobile Sticky CTA */}
+        {cartItems.length > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-background/95 backdrop-blur-md border-t border-border/40 p-4 z-40">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">Total</span>
+              <span className="font-serif font-black text-lg">₹{totalAmount}</span>
+            </div>
+            <button
+              onClick={handlePayment}
+              disabled={loading}
+              className="w-full py-4 min-h-[48px] bg-foreground text-background font-serif text-xs tracking-[0.25em] uppercase disabled:opacity-50"
+            >
+              {loading ? "Processing..." : "Secure Order"}
+            </button>
+          </div>
+        )}
       </div>
     </Layout>
   );
