@@ -84,7 +84,7 @@ const Shop = () => {
   return (
     <Layout>
       <div className="min-h-screen p-6">
-        <h1 className="text-3xl font-semibold text-center mb-10">Shop Collection</h1>
+        <h1 className="text-3xl font-semibold text-center mb-10">Releases</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {cards.map((card) => (
