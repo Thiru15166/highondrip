@@ -67,7 +67,7 @@ export default function Checkout() {
     setLoading(true);
 
     const options = {
-      key: "YOUR_RAZORPAY_PUBLIC_KEY", // 🔥 replace this
+      key: "rzp_live_SIoNRnxink8XR9", // 🔥 replace this
       amount: totalAmount * 100,
       currency: "INR",
       name: "Mensmass",
