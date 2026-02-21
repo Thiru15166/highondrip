@@ -163,21 +163,14 @@ export default function Shop() {
       {/* Product Grid */}
       <div className="max-w-7xl mx-auto px-6 pb-24">
         {/* Grid Toggle */}
-        <div className="flex justify-end items-center gap-1 mb-8">
-          {([2, 3, 4] as const).map((cols) => (
-            <button
-              key={cols}
-              onClick={() => setGridCols(cols)}
-              className={`p-2 transition-colors duration-300 ${
-                gridCols === cols
-                  ? "text-foreground"
-                  : "text-muted-foreground/40 hover:text-muted-foreground"
-              }`}
-              aria-label={`${cols}-column view`}
-            >
-              {cols === 2 ? <Grid2X2 className="w-4 h-4" /> : cols === 3 ? <Grid3X3 className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
-            </button>
-          ))}
+        <div className="hidden md:flex justify-end mb-8">
+          <button
+            onClick={() => setGridCols((prev) => (prev === 2 ? 3 : prev === 3 ? 4 : 2))}
+            className="p-2 text-muted-foreground hover:text-foreground transition-colors duration-300"
+            aria-label={`Switch to ${gridCols === 2 ? 3 : gridCols === 3 ? 4 : 2}-column view`}
+          >
+            {gridCols === 2 ? <Grid2X2 className="w-4 h-4" /> : gridCols === 3 ? <Grid3X3 className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
+          </button>
         </div>
 
         <div className={`grid grid-cols-1 gap-x-6 gap-y-16 transition-all duration-500 ease-out ${
