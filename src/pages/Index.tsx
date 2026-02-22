@@ -24,7 +24,7 @@ const Index = () => {
             <img
               src={dragonLogo}
               alt="HIGH ON DRIP Dragon"
-              className="w-52 h-52 md:w-72 md:h-72 lg:w-[22rem] lg:h-[22rem] object-contain drop-shadow-[0_4px_40px_rgba(0,0,0,0.5)]"
+              className="w-64 h-64 md:w-[22rem] md:h-[22rem] lg:w-[30rem] lg:h-[30rem] object-contain drop-shadow-[0_4px_40px_rgba(0,0,0,0.35)]"
             />
           </div>
 
