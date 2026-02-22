@@ -47,11 +47,11 @@ const Index = () => {
         {/* Main content */}
         <div className="relative z-10 flex flex-col items-center text-center px-6">
           {/* Dragon logo */}
-          <div className="relative mb-10 md:mb-14">
+          <div className="relative mb-12 md:mb-16">
             <img
               src={dragonLogo}
               alt="HIGH ON DRIP Dragon"
-              className="w-32 h-32 md:w-44 md:h-44 lg:w-52 lg:h-52 object-contain drop-shadow-[0_0_60px_rgba(255,255,255,0.08)]"
+              className="w-36 h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 object-contain drop-shadow-[0_0_80px_rgba(255,255,255,0.06)]"
             />
           </div>
 
