@@ -31,18 +31,25 @@ export default function Admin() {
 
   /* ---------------- ADMIN AUTH CHECK ---------------- */
 
-  useEffect(() => {
+useEffect(() => {
   const unsubscribe = onAuthStateChanged(auth, (user) => {
     if (!user) {
-      navigate("/login", { replace: true });
-    } else if (user.email !== "muthuraajaa1111@gmail.com") {
-      navigate("/", { replace: true });
+      setLoading(false);
+      navigate("/login");
+      return;
     }
+
+    if (user.email !== "muthuraajaa1111@gmail.com") {
+      setLoading(false);
+      navigate("/");
+      return;
+    }
+
     setLoading(false);
   });
 
   return () => unsubscribe();
-}, []);
+}, [auth, navigate]);
 
   if (loading) {
     return <div style={{ padding: "40px" }}>Checking access...</div>;
