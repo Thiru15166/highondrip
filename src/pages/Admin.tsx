@@ -7,18 +7,17 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
-
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 
 export default function Admin() {
-
   const auth = getAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("products");
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
+  const [activeTab, setActiveTab] = useState("products");
   const [products, setProducts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
 
@@ -29,34 +28,17 @@ export default function Admin() {
   const [newSize, setNewSize] = useState("");
   const [newType, setNewType] = useState("");
 
-  /* ---------------- ADMIN AUTH CHECK ---------------- */
-
-useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
-    if (!user) {
+  // ✅ AUTH CHECK
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
       setLoading(false);
-      navigate("/login");
-      return;
-    }
+    });
 
-    if (user.email !== "muthuraajaa1111@gmail.com") {
-      setLoading(false);
-      navigate("/");
-      return;
-    }
+    return () => unsubscribe();
+  }, [auth]);
 
-    setLoading(false);
-  });
-
-  return () => unsubscribe();
-}, [auth, navigate]);
-
-  if (loading) {
-    return <div style={{ padding: "40px" }}>Checking access...</div>;
-  }
-
-  /* ---------------- FETCH DATA ---------------- */
-
+  // ✅ FETCH PRODUCTS
   const fetchProducts = async () => {
     const data = await getDocs(collection(db, "products"));
     setProducts(
@@ -67,6 +49,7 @@ useEffect(() => {
     );
   };
 
+  // ✅ FETCH ORDERS
   const fetchOrders = async () => {
     const data = await getDocs(collection(db, "orders"));
     setOrders(
@@ -82,24 +65,20 @@ useEffect(() => {
     fetchOrders();
   }, []);
 
-  /* ---------------- ADD PRODUCT ---------------- */
-
+  // ✅ ADD PRODUCT
   const handleAddProduct = async () => {
-    if (!newName || !newPrice || !newImages) {
-      alert("Please fill required fields");
-      return;
-    }
+    if (!newName || !newPrice) return alert("Fill all fields");
 
     await addDoc(collection(db, "products"), {
       name: newName,
-      price: Number(newPrice),
-      images: newImages.split(","),
+      price: newPrice,
+      images: newImages,
       description: newDescription,
       size: newSize,
       type: newType,
-      createdAt: new Date(),
     });
 
+    alert("Product Added");
     setNewName("");
     setNewPrice("");
     setNewImages("");
@@ -110,25 +89,35 @@ useEffect(() => {
     fetchProducts();
   };
 
-  /* ---------------- DELETE PRODUCT ---------------- */
-
+  // ✅ DELETE PRODUCT
   const handleDelete = async (id: string) => {
     await deleteDoc(doc(db, "products", id));
     fetchProducts();
   };
 
-  /* ---------------- LOGOUT ---------------- */
-
   const handleLogout = async () => {
     await signOut(auth);
-    navigate("/login");
+    navigate("/");
   };
 
-  /* ---------------- UI ---------------- */
+  // ✅ LOADING SCREEN
+  if (loading) {
+    return <div style={{ padding: "40px" }}>Checking access...</div>;
+  }
 
+  // ✅ NOT LOGGED IN
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // ✅ WRONG EMAIL
+  if (currentUser.email !== "muthuraajaa1111@gmail.com") {
+    return <Navigate to="/" replace />;
+  }
+
+  // ✅ MAIN UI
   return (
     <div style={{ padding: "30px", maxWidth: "900px", margin: "auto" }}>
-
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <h2>Admin Dashboard</h2>
         <button onClick={handleLogout}>Logout</button>
@@ -141,7 +130,6 @@ useEffect(() => {
         <button onClick={() => setActiveTab("orders")}>Orders</button>
       </div>
 
-      {/* PRODUCTS TAB */}
       {activeTab === "products" && (
         <div>
           <h3>Add Product</h3>
@@ -151,63 +139,62 @@ useEffect(() => {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
           />
-          <br />
+          <br /><br />
 
           <input
-            type="number"
             placeholder="Price"
             value={newPrice}
             onChange={(e) => setNewPrice(e.target.value)}
           />
-          <br />
+          <br /><br />
 
           <input
-            placeholder="Image URLs (comma separated)"
+            placeholder="Image URL"
             value={newImages}
             onChange={(e) => setNewImages(e.target.value)}
           />
-          <br />
+          <br /><br />
 
-          <textarea
+          <input
             placeholder="Description"
             value={newDescription}
             onChange={(e) => setNewDescription(e.target.value)}
           />
-          <br />
+          <br /><br />
 
           <input
             placeholder="Size"
             value={newSize}
             onChange={(e) => setNewSize(e.target.value)}
           />
-          <br />
+          <br /><br />
 
           <input
             placeholder="Type"
             value={newType}
             onChange={(e) => setNewType(e.target.value)}
           />
-          <br />
+          <br /><br />
 
           <button onClick={handleAddProduct}>Add Product</button>
 
           <hr />
 
-          <h3>Product List</h3>
+          <h3>All Products</h3>
 
           {products.map((product) => (
-            <div key={product.id} style={{ marginBottom: "15px" }}>
-              <b>{product.name}</b> - ₹{product.price}
-              <br />
+            <div key={product.id} style={{ marginBottom: "20px" }}>
+              <p><b>{product.name}</b></p>
+              <p>₹ {product.price}</p>
               <button onClick={() => handleDelete(product.id)}>
                 Delete
               </button>
+              <hr />
             </div>
           ))}
         </div>
       )}
 
-      {/* ORDERS TAB */}
       {activeTab === "orders" && (
         <div>
           <h3>Orders</h3>
@@ -217,14 +204,12 @@ useEffect(() => {
               <p><b>Name:</b> {order.name}</p>
               <p><b>Phone:</b> {order.phone}</p>
               <p><b>Address:</b> {order.address}</p>
-              <p><b>Total:</b> ₹{order.total}</p>
+              <p><b>Total:</b> ₹ {order.total}</p>
               <hr />
             </div>
           ))}
         </div>
       )}
     </div>
-  )}
   );
-  
-
+}
