@@ -1,11 +1,27 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
-import { collection, addDoc, getDocs, deleteDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
+
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 export default function Admin() {
+
+  const auth = getAuth();
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("products");
 
-  // Product States
+  const [products, setProducts] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+
   const [newName, setNewName] = useState("");
   const [newPrice, setNewPrice] = useState("");
   const [newImages, setNewImages] = useState("");
@@ -13,28 +29,47 @@ export default function Admin() {
   const [newSize, setNewSize] = useState("");
   const [newType, setNewType] = useState("");
 
-  const [products, setProducts] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
+  /* ---------------- ADMIN AUTH CHECK ---------------- */
 
-  // Fetch Products
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/login");
+      } else {
+        // 🔥 Change this email to your real admin email
+        if (user.email !== "muthuraajaa1111@gmail.com") {
+          navigate("/");
+        }
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div style={{ padding: "40px" }}>Checking access...</div>;
+  }
+
+  /* ---------------- FETCH DATA ---------------- */
+
   const fetchProducts = async () => {
     const data = await getDocs(collection(db, "products"));
     setProducts(
       data.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
-      })),
+      }))
     );
   };
 
-  // Fetch Orders
   const fetchOrders = async () => {
     const data = await getDocs(collection(db, "orders"));
     setOrders(
       data.docs.map((doc) => ({
         ...doc.data(),
         id: doc.id,
-      })),
+      }))
     );
   };
 
@@ -43,19 +78,18 @@ export default function Admin() {
     fetchOrders();
   }, []);
 
-  // Add Product
+  /* ---------------- ADD PRODUCT ---------------- */
+
   const handleAddProduct = async () => {
     if (!newName || !newPrice || !newImages) {
       alert("Please fill required fields");
       return;
     }
 
-    const imageArray = newImages.split(",");
-
     await addDoc(collection(db, "products"), {
       name: newName,
       price: Number(newPrice),
-      images: imageArray,
+      images: newImages.split(","),
       description: newDescription,
       size: newSize,
       type: newType,
@@ -72,97 +106,96 @@ export default function Admin() {
     fetchProducts();
   };
 
-  // Delete Product
+  /* ---------------- DELETE PRODUCT ---------------- */
+
   const handleDelete = async (id: string) => {
     await deleteDoc(doc(db, "products", id));
     fetchProducts();
   };
 
-  return (
-    <div className="p-6 max-w-5xl mx-auto">
-      {/* TAB BUTTONS */}
-      <div className="flex gap-4 mb-6">
-        <button onClick={() => setActiveTab("products")} className="bg-black text-white px-4 py-2">
-          Products
-        </button>
+  /* ---------------- LOGOUT ---------------- */
 
-        <button onClick={() => setActiveTab("orders")} className="bg-gray-700 text-white px-4 py-2">
-          Orders
-        </button>
+  const handleLogout = async () => {
+    await signOut(auth);
+    navigate("/login");
+  };
+
+  /* ---------------- UI ---------------- */
+
+  return (
+    <div style={{ padding: "30px", maxWidth: "900px", margin: "auto" }}>
+
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h2>Admin Dashboard</h2>
+        <button onClick={handleLogout}>Logout</button>
+      </div>
+
+      <hr />
+
+      <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+        <button onClick={() => setActiveTab("products")}>Products</button>
+        <button onClick={() => setActiveTab("orders")}>Orders</button>
       </div>
 
       {/* PRODUCTS TAB */}
       {activeTab === "products" && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">Add Product</h2>
+          <h3>Add Product</h3>
 
-          <div className="flex flex-col gap-3 mb-6">
-            <input
-              type="text"
-              placeholder="Product Name"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              className="border p-2"
-            />
+          <input
+            placeholder="Product Name"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+          />
+          <br />
 
-            <input
-              type="number"
-              placeholder="Price"
-              value={newPrice}
-              onChange={(e) => setNewPrice(e.target.value)}
-              className="border p-2"
-            />
+          <input
+            type="number"
+            placeholder="Price"
+            value={newPrice}
+            onChange={(e) => setNewPrice(e.target.value)}
+          />
+          <br />
 
-            <input
-              type="text"
-              placeholder="Image URLs (comma separated)"
-              value={newImages}
-              onChange={(e) => setNewImages(e.target.value)}
-              className="border p-2"
-            />
+          <input
+            placeholder="Image URLs (comma separated)"
+            value={newImages}
+            onChange={(e) => setNewImages(e.target.value)}
+          />
+          <br />
 
-            <textarea
-              placeholder="Product Description (2 lines)"
-              value={newDescription}
-              onChange={(e) => setNewDescription(e.target.value)}
-              className="border p-2"
-            />
+          <textarea
+            placeholder="Description"
+            value={newDescription}
+            onChange={(e) => setNewDescription(e.target.value)}
+          />
+          <br />
 
-            <select value={newSize} onChange={(e) => setNewSize(e.target.value)} className="border p-2">
-              <option value="">Select Size</option>
-              <option value="S">S</option>
-              <option value="M">M</option>
-              <option value="L">L</option>
-              <option value="XL">XL</option>
-            </select>
+          <input
+            placeholder="Size"
+            value={newSize}
+            onChange={(e) => setNewSize(e.target.value)}
+          />
+          <br />
 
-            <select value={newType} onChange={(e) => setNewType(e.target.value)} className="border p-2">
-              <option value="">Select Type</option>
-              <option value="Half Hand">Half Hand</option>
-              <option value="Full Hand">Full Hand</option>
-            </select>
+          <input
+            placeholder="Type"
+            value={newType}
+            onChange={(e) => setNewType(e.target.value)}
+          />
+          <br />
 
-            <button onClick={handleAddProduct} className="bg-black text-white p-2">
-              Add Product
-            </button>
-          </div>
+          <button onClick={handleAddProduct}>Add Product</button>
 
-          {/* PRODUCT LIST */}
+          <hr />
+
+          <h3>Product List</h3>
+
           {products.map((product) => (
-            <div key={product.id} className="border p-4 mb-4 flex justify-between items-center">
-              <div className="flex gap-4 items-center">
-                <img src={product.images?.[0]} className="w-16 h-16 object-cover" />
-
-                <div>
-                  <p className="font-bold">{product.name}</p>
-                  <p>₹ {product.price}</p>
-                  <p className="text-sm text-gray-600">{product.description}</p>
-                  <p className="text-sm">Size: {product.size}</p>
-                  <p className="text-sm">Type: {product.type}</p>
-                </div>
-              </div>
-
-              <button onClick={() => handleDelete(product.id)} className="bg-red-500 text-white px-3 py-1">
+            <div key={product.id} style={{ marginBottom: "15px" }}>
+              <b>{product.name}</b> - ₹{product.price}
+              <br />
+              <button onClick={() => handleDelete(product.id)}>
                 Delete
               </button>
             </div>
@@ -173,44 +206,15 @@ export default function Admin() {
       {/* ORDERS TAB */}
       {activeTab === "orders" && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">Orders</h2>
+          <h3>Orders</h3>
 
           {orders.map((order) => (
-            <div key={order.id} className="border p-4 mb-6">
-              <p>
-                <b>Name:</b> {order.name}
-              </p>
-              <p>
-                <b>Phone:</b> {order.phone}
-              </p>
-              <p>
-                <b>Address:</b> {order.address}
-              </p>
-              <p>
-                <b>Total:</b> ₹ {order.total}
-              </p>
-
-              <div className="mt-4">
-                {order.items?.map((item: any, index: number) => (
-                  <div key={index} className="border p-3 mt-3 flex gap-4 items-center">
-                    <img src={item.image} className="w-20 h-20 object-cover" />
-
-                    <div>
-                      <p className="font-semibold">{item.name}</p>
-                      <p className="text-sm text-gray-600">{item.description}</p>
-                      <p>
-                        <b>Size:</b> {item.size}
-                      </p>
-                      <p>
-                        <b>Qty:</b> {item.quantity}
-                      </p>
-                      <p>
-                        <b>Price:</b> ₹ {item.price}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div key={order.id} style={{ marginBottom: "20px" }}>
+              <p><b>Name:</b> {order.name}</p>
+              <p><b>Phone:</b> {order.phone}</p>
+              <p><b>Address:</b> {order.address}</p>
+              <p><b>Total:</b> ₹{order.total}</p>
+              <hr />
             </div>
           ))}
         </div>
