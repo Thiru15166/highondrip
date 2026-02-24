@@ -42,7 +42,7 @@ export default function Admin() {
   });
 
   return () => unsubscribe();
-}, [auth, navigate]);
+}, []);
 
   if (loading) {
     return <div style={{ padding: "40px" }}>Checking access...</div>;
