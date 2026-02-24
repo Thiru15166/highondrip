@@ -8,11 +8,12 @@ import {
   doc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 export default function Admin() {
   const auth = getAuth();
-  const navigate = useNavigate();
+
+  /* ---------------- STATE ---------------- */
 
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -28,7 +29,8 @@ export default function Admin() {
   const [newSize, setNewSize] = useState("");
   const [newType, setNewType] = useState("");
 
-  // ✅ AUTH CHECK
+  /* ---------------- AUTH CHECK ---------------- */
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
@@ -38,7 +40,8 @@ export default function Admin() {
     return () => unsubscribe();
   }, [auth]);
 
-  // ✅ FETCH PRODUCTS
+  /* ---------------- FETCH DATA ---------------- */
+
   const fetchProducts = async () => {
     const data = await getDocs(collection(db, "products"));
     setProducts(
@@ -49,7 +52,6 @@ export default function Admin() {
     );
   };
 
-  // ✅ FETCH ORDERS
   const fetchOrders = async () => {
     const data = await getDocs(collection(db, "orders"));
     setOrders(
@@ -65,9 +67,13 @@ export default function Admin() {
     fetchOrders();
   }, []);
 
-  // ✅ ADD PRODUCT
+  /* ---------------- PRODUCT ACTIONS ---------------- */
+
   const handleAddProduct = async () => {
-    if (!newName || !newPrice) return alert("Fill all fields");
+    if (!newName || !newPrice) {
+      alert("Fill required fields");
+      return;
+    }
 
     await addDoc(collection(db, "products"), {
       name: newName,
@@ -78,7 +84,6 @@ export default function Admin() {
       type: newType,
     });
 
-    alert("Product Added");
     setNewName("");
     setNewPrice("");
     setNewImages("");
@@ -89,7 +94,6 @@ export default function Admin() {
     fetchProducts();
   };
 
-  // ✅ DELETE PRODUCT
   const handleDelete = async (id: string) => {
     await deleteDoc(doc(db, "products", id));
     fetchProducts();
@@ -97,119 +101,162 @@ export default function Admin() {
 
   const handleLogout = async () => {
     await signOut(auth);
-    navigate("/");
   };
 
-  // ✅ LOADING SCREEN
+  /* ---------------- PROTECTION ---------------- */
+
   if (loading) {
     return <div style={{ padding: "40px" }}>Checking access...</div>;
   }
 
-  // ✅ NOT LOGGED IN
   if (!currentUser) {
     return <Navigate to="/login" replace />;
   }
 
-  // ✅ WRONG EMAIL
   if (currentUser.email !== "muthuraajaa1111@gmail.com") {
     return <Navigate to="/" replace />;
   }
 
-  // ✅ MAIN UI
+  /* ---------------- UI ---------------- */
+
   return (
-    <div style={{ padding: "30px", maxWidth: "900px", margin: "auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h2>Admin Dashboard</h2>
-        <button onClick={handleLogout}>Logout</button>
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "Arial" }}>
+      
+      {/* Sidebar */}
+      <div style={{
+        width: "230px",
+        background: "#111827",
+        color: "white",
+        padding: "20px"
+      }}>
+        <h2 style={{ marginBottom: "30px" }}>Admin Panel</h2>
+
+        <button
+          onClick={() => setActiveTab("products")}
+          style={sidebarBtn(activeTab === "products")}
+        >
+          Products
+        </button>
+
+        <button
+          onClick={() => setActiveTab("orders")}
+          style={sidebarBtn(activeTab === "orders")}
+        >
+          Orders
+        </button>
+
+        <button
+          onClick={handleLogout}
+          style={{ ...sidebarBtn(false), marginTop: "40px", background: "#dc2626" }}
+        >
+          Logout
+        </button>
       </div>
 
-      <hr />
+      {/* Main Content */}
+      <div style={{
+        flex: 1,
+        padding: "40px",
+        background: "#f3f4f6"
+      }}>
 
-      <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-        <button onClick={() => setActiveTab("products")}>Products</button>
-        <button onClick={() => setActiveTab("orders")}>Orders</button>
-      </div>
+        {activeTab === "products" && (
+          <div>
+            <h2 style={titleStyle}>Add Product</h2>
 
-      {activeTab === "products" && (
-        <div>
-          <h3>Add Product</h3>
+            <div style={cardStyle}>
+              <input placeholder="Product Name" value={newName} onChange={(e) => setNewName(e.target.value)} style={inputStyle} />
+              <input placeholder="Price" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} style={inputStyle} />
+              <input placeholder="Image URL" value={newImages} onChange={(e) => setNewImages(e.target.value)} style={inputStyle} />
+              <input placeholder="Description" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} style={inputStyle} />
+              <input placeholder="Size" value={newSize} onChange={(e) => setNewSize(e.target.value)} style={inputStyle} />
+              <input placeholder="Type" value={newType} onChange={(e) => setNewType(e.target.value)} style={inputStyle} />
 
-          <input
-            placeholder="Product Name"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-          />
-          <br /><br />
-
-          <input
-            placeholder="Price"
-            value={newPrice}
-            onChange={(e) => setNewPrice(e.target.value)}
-          />
-          <br /><br />
-
-          <input
-            placeholder="Image URL"
-            value={newImages}
-            onChange={(e) => setNewImages(e.target.value)}
-          />
-          <br /><br />
-
-          <input
-            placeholder="Description"
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
-          />
-          <br /><br />
-
-          <input
-            placeholder="Size"
-            value={newSize}
-            onChange={(e) => setNewSize(e.target.value)}
-          />
-          <br /><br />
-
-          <input
-            placeholder="Type"
-            value={newType}
-            onChange={(e) => setNewType(e.target.value)}
-          />
-          <br /><br />
-
-          <button onClick={handleAddProduct}>Add Product</button>
-
-          <hr />
-
-          <h3>All Products</h3>
-
-          {products.map((product) => (
-            <div key={product.id} style={{ marginBottom: "20px" }}>
-              <p><b>{product.name}</b></p>
-              <p>₹ {product.price}</p>
-              <button onClick={() => handleDelete(product.id)}>
-                Delete
+              <button onClick={handleAddProduct} style={primaryBtn}>
+                Add Product
               </button>
-              <hr />
             </div>
-          ))}
-        </div>
-      )}
 
-      {activeTab === "orders" && (
-        <div>
-          <h3>Orders</h3>
+            <h2 style={titleStyle}>All Products</h2>
 
-          {orders.map((order) => (
-            <div key={order.id} style={{ marginBottom: "20px" }}>
-              <p><b>Name:</b> {order.name}</p>
-              <p><b>Phone:</b> {order.phone}</p>
-              <p><b>Address:</b> {order.address}</p>
-              <p><b>Total:</b> ₹ {order.total}</p>
-              <hr />
-            </div>
-          ))}
-        </div>
-      )}
+            {products.map((product) => (
+              <div key={product.id} style={cardStyle}>
+                <h3>{product.name}</h3>
+                <p>₹ {product.price}</p>
+                <button onClick={() => handleDelete(product.id)} style={dangerBtn}>
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === "orders" && (
+          <div>
+            <h2 style={titleStyle}>Orders</h2>
+
+            {orders.map((order) => (
+              <div key={order.id} style={cardStyle}>
+                <p><b>Name:</b> {order.name}</p>
+                <p><b>Phone:</b> {order.phone}</p>
+                <p><b>Address:</b> {order.address}</p>
+                <p><b>Total:</b> ₹ {order.total}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
+/* ---------------- STYLES ---------------- */
+
+const sidebarBtn = (active: boolean) => ({
+  width: "100%",
+  padding: "10px",
+  marginBottom: "10px",
+  border: "none",
+  cursor: "pointer",
+  background: active ? "#2563eb" : "#1f2937",
+  color: "white",
+  borderRadius: "6px"
+});
+
+const cardStyle = {
+  background: "white",
+  padding: "20px",
+  marginBottom: "20px",
+  borderRadius: "10px",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "10px",
+  marginBottom: "10px",
+  borderRadius: "6px",
+  border: "1px solid #ddd"
+};
+
+const primaryBtn = {
+  padding: "10px 15px",
+  background: "#2563eb",
+  color: "white",
+  border: "none",
+  borderRadius: "6px",
+  cursor: "pointer"
+};
+
+const dangerBtn = {
+  padding: "8px 12px",
+  background: "#dc2626",
+  color: "white",
+  border: "none",
+  borderRadius: "6px",
+  cursor: "pointer"
+};
+
+const titleStyle = {
+  marginBottom: "20px"
+};
