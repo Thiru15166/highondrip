@@ -32,20 +32,17 @@ export default function Admin() {
   /* ---------------- ADMIN AUTH CHECK ---------------- */
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        navigate("/login");
-      } else {
-        // 🔥 Change this email to your real admin email
-        if (user.email !== "muthuraajaa1111@gmail.com") {
-          navigate("/");
-        }
-      }
-      setLoading(false);
-    });
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      navigate("/login", { replace: true });
+    } else if (user.email !== "muthuraajaa1111@gmail.com") {
+      navigate("/", { replace: true });
+    }
+    setLoading(false);
+  });
 
-    return () => unsubscribe();
-  }, [auth, navigate]);
+  return () => unsubscribe();
+}, [auth, navigate]);
 
   if (loading) {
     return <div style={{ padding: "40px" }}>Checking access...</div>;
