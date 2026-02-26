@@ -76,13 +76,16 @@ export default function Admin() {
     }
 
     await addDoc(collection(db, "products"), {
-      name: newName,
-      price: newPrice,
-      images: newImages,
-      description: newDescription,
-      size: newSize,
-      type: newType,
-    });
+  name: newName,
+  price: Number(newPrice),
+  images: newImages
+    .split(",")
+    .map((url) => url.trim())
+    .filter((url) => url !== ""),
+  description: newDescription,
+  size: newSize,
+  type: newType,
+});
 
     setNewName("");
     setNewPrice("");
