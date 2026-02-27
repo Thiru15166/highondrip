@@ -10,7 +10,7 @@ interface ProductSizeSheetProps {
     name: string;
     price: number;
     image: string;
-    sizes: { [key: string]: number };
+   sizes: string[];
     sleeveType?: string;
   } | null;
   onAddToCart: (productId: string, size: string) => void;
@@ -66,22 +66,22 @@ export default function ProductSizeSheet({ open, onOpenChange, product, onAddToC
           </div>
         </div>
 
-        {/* Sizes */}
-        <div className="grid grid-cols-4 gap-3 mb-10">
-          {Object.keys(product.sizes || {}).map((size) => (
-            <button
-              key={size}
-              onClick={() => setSelectedSize(size)}
-              className={`border py-3.5 text-[10px] tracking-[0.2em] uppercase transition-all duration-300 ${
-                selectedSize === size
-                  ? "bg-foreground text-background border-foreground"
-                  : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-              }`}
-            >
-              {size}
-            </button>
-          ))}
-        </div>
+{/* Sizes */}
+<div className="grid grid-cols-4 gap-3 mb-10">
+  {product?.sizes?.map((size) => (
+    <button
+      key={size}
+      onClick={() => setSelectedSize(size)}
+      className={`border py-3.5 text-[10px] tracking-[0.2em] uppercase transition-all duration-300 ${
+        selectedSize === size
+          ? "bg-foreground text-background border-foreground"
+          : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+      }`}
+    >
+      {size}
+    </button>
+  ))}
+</div>
 
         {/* CTA */}
         <button
