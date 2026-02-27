@@ -75,7 +75,7 @@ export default function Admin() {
       return;
     }
 
-    await addDoc(collection(db, "products"), {
+await addDoc(collection(db, "products"), {
   name: newName,
   price: Number(newPrice),
   images: newImages
@@ -83,7 +83,13 @@ export default function Admin() {
     .map((url) => url.trim())
     .filter((url) => url !== ""),
   description: newDescription,
-  size: newSize,
+  sizes: newSize
+    .split(",")
+    .map(size => size.trim())
+    .reduce((acc, size) => {
+      acc[size] = 1;
+      return acc;
+    }, {} as Record<string, number>),
   type: newType,
 });
 
