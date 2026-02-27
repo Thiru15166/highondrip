@@ -11,7 +11,7 @@ import ProductSizeSheet from "@/components/ProductSizeSheet";
 interface Product {
   name: string;
   price: number;
-  sizes: { [key: string]: number };
+  sizes: string[];
   images: string[];
   sleeveType?: string;
   description?: string;
@@ -22,7 +22,7 @@ interface CardItem {
   name: string;
   price: number;
   image: string;
-  sizes: { [key: string]: number };
+  sizes: string[];
   sleeveType?: string;
   description?: string;
 }
