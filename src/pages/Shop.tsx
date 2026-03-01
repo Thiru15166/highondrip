@@ -1,21 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
-import { X, ChevronLeft, ChevronRight, Grid2X2, Grid3X3, LayoutGrid } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FadeInSection from "@/components/FadeInSection";
 import MiniCart from "@/components/MiniCart";
 import ProductSizeSheet from "@/components/ProductSizeSheet";
-
-interface Product {
-  name: string;
-  price: number;
-  sizes: string[];
-  images: string[];
-  sleeveType?: string;
-  description?: string;
-}
 
 interface CardItem {
   productId: string;
@@ -41,47 +31,62 @@ export default function Shop() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [miniCartOpen, setMiniCartOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [gridCols, setGridCols] = useState<2 | 3 | 4>(3);
   const [sizeSheetOpen, setSizeSheetOpen] = useState(false);
   const [activeProduct, setActiveProduct] = useState<CardItem | null>(null);
 
-  // Load cart
+  // ✅ Load Cart safely
   useEffect(() => {
     const stored = localStorage.getItem("cart");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setCartItems(Array.isArray(parsed) ? parsed : []);
-      } catch {
-        setCartItems([]);
-      }
+    if (!stored) return;
+
+    try {
+      const parsed = JSON.parse(stored);
+      setCartItems(Array.isArray(parsed) ? parsed : []);
+    } catch {
+      setCartItems([]);
     }
   }, []);
 
-  // Fetch products
+  // ✅ Fetch Products safely
   useEffect(() => {
     const fetchProducts = async () => {
-      const snapshot = await getDocs(collection(db, "products"));
-      const temp: CardItem[] = [];
+      try {
+        const snapshot = await getDocs(collection(db, "products"));
+        const temp: CardItem[] = [];
 
-      snapshot.forEach((doc) => {
-        const data = doc.data() as Product;
-        if (Array.isArray(data.images)) {
-          data.images.forEach((img, index) => {
+        snapshot.forEach((doc) => {
+          const data: any = doc.data();
+
+          // 🔥 Safe sizes handling
+          let safeSizes: string[] = [];
+
+          if (Array.isArray(data.sizes)) {
+            safeSizes = data.sizes;
+          } else if (typeof data.sizes === "object" && data.sizes !== null) {
+            safeSizes = Object.keys(data.sizes);
+          } else if (typeof data.sizes === "string") {
+            safeSizes = data.sizes.split(",").map((s: string) => s.trim());
+          }
+
+          const safeImages = Array.isArray(data.images) ? data.images : [];
+
+          safeImages.forEach((img: string, index: number) => {
             temp.push({
               productId: doc.id + "-" + index,
-              name: data.name,
-              price: data.price,
+              name: data.name || "",
+              price: Number(data.price) || 0,
               image: img,
-              sizes: data.sizes,
-              sleeveType: data.sleeveType,
-              description: data.description,
+              sizes: safeSizes,
+              sleeveType: data.sleeveType || "",
+              description: data.description || "",
             });
           });
-        }
-      });
+        });
 
-      setCards(temp);
+        setCards(temp);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      }
     };
 
     fetchProducts();
@@ -117,7 +122,7 @@ export default function Shop() {
 
     setCartItems(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
-    setTimeout(() => setMiniCartOpen(true), 800);
+    setTimeout(() => setMiniCartOpen(true), 500);
   };
 
   const openLightbox = useCallback((index: number) => {
@@ -130,96 +135,53 @@ export default function Shop() {
     document.body.style.overflow = "";
   }, []);
 
-  const navigateLightbox = useCallback((dir: 1 | -1) => {
-    setLightboxIndex((prev) => {
-      if (prev === null) return null;
-      const next = prev + dir;
-      if (next < 0 || next >= cards.length) return prev;
-      return next;
-    });
-  }, [cards.length]);
-
-  useEffect(() => {
-    if (lightboxIndex === null) return;
-
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeLightbox();
-      if (e.key === "ArrowRight") navigateLightbox(1);
-      if (e.key === "ArrowLeft") navigateLightbox(-1);
-    };
-
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [lightboxIndex, closeLightbox, navigateLightbox]);
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Header Section */}
-      <div className="pt-28 md:pt-52 pb-14 md:pb-28 text-center px-4">
-        <p className="text-[8px] md:text-[9px] tracking-[0.5em] uppercase text-muted-foreground mb-3 md:mb-5">
-          Current Drop
-        </p>
-        <h1 className="font-serif font-black text-3xl md:text-6xl lg:text-7xl tracking-[0.12em] uppercase">
-          Releases
-        </h1>
-        <div className="w-8 h-px bg-foreground/20 mx-auto mt-6 md:mt-10" />
-      </div>
-
       {/* Product Grid */}
-      <div className="max-w-[1400px] mx-auto px-4 md:px-12 lg:px-16 pb-24 md:pb-40">
+      <div className="max-w-[1400px] mx-auto px-4 py-20 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {cards.map((card, index) => (
+          <FadeInSection key={card.productId}>
+            <div className="group">
 
-        <div className={`grid ${
-          gridCols === 2
-            ? "grid-cols-2 gap-10"
-            : gridCols === 3
-            ? "grid-cols-2 lg:grid-cols-3 gap-10"
-            : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
-        }`}>
-
-          {cards.map((card, index) => (
-            <FadeInSection key={card.productId}>
-              <div className="group">
-
-                <div
-                  className="relative overflow-hidden aspect-[3/4] bg-secondary cursor-pointer"
-                  onClick={() => openLightbox(index)}
-                >
-                  <img
-                    src={card.image}
-                    alt={card.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                <div className="mt-5 space-y-3">
-                  <div className="flex justify-between items-baseline">
-                    <h2 className="text-[13px] uppercase font-medium">
-                      {card.name}
-                    </h2>
-                    <p className="text-[13px] font-serif">
-                      ₹{card.price}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => handleOpenSizeSheet(card)}
-                    className="w-full py-3 bg-foreground text-background uppercase text-xs"
-                  >
-                    Secure the Drip
-                  </button>
-                </div>
-
+              <div
+                className="relative overflow-hidden aspect-[3/4] bg-secondary cursor-pointer"
+                onClick={() => openLightbox(index)}
+              >
+                <img
+                  src={card.image}
+                  alt={card.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
-            </FadeInSection>
-          ))}
 
-        </div>
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between">
+                  <h2 className="text-sm uppercase font-medium">
+                    {card.name}
+                  </h2>
+                  <p className="font-serif text-sm">
+                    ₹{card.price}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => handleOpenSizeSheet(card)}
+                  className="w-full py-3 bg-foreground text-background uppercase text-xs"
+                >
+                  Secure the Drip
+                </button>
+              </div>
+
+            </div>
+          </FadeInSection>
+        ))}
       </div>
 
       <Footer />
 
+      {/* Lightbox */}
       {lightboxIndex !== null && cards[lightboxIndex] && (
         <div
           className="fixed inset-0 bg-black/95 flex items-center justify-center"
@@ -233,6 +195,7 @@ export default function Shop() {
         </div>
       )}
 
+      {/* Size Sheet */}
       <ProductSizeSheet
         open={sizeSheetOpen}
         onOpenChange={setSizeSheetOpen}
@@ -240,6 +203,7 @@ export default function Shop() {
         onAddToCart={handleAddFromSheet}
       />
 
+      {/* Mini Cart */}
       <MiniCart
         open={miniCartOpen}
         onOpenChange={setMiniCartOpen}
