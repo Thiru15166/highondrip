@@ -47,9 +47,15 @@ export default function Shop() {
 
   useEffect(() => {
     const stored = localStorage.getItem("cart");
-    if (stored) setCartItems(JSON.parse(stored));
-  }, []);
 
+if (stored) {
+  try {
+    const parsed = JSON.parse(stored);
+    setCartItems(Array.isArray(parsed) ? parsed : []);
+  } catch (error) {
+    setCartItems([]);
+  }
+}
   useEffect(() => {
     const fetchProducts = async () => {
       const snapshot = await getDocs(collection(db, "products"));
