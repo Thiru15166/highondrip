@@ -183,22 +183,24 @@ if (stored) {
               : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 md:gap-x-6 gap-y-8 md:gap-y-18"
         }`}>
          {Array.isArray(cards) &&
-  cards.map((card, index) => {
-            return (
-              <FadeInSection key={card.productId}>
-                <div className="group">
-                  {/* Image */}
-                  <div
-                    className="relative overflow-hidden aspect-[3/4] bg-secondary cursor-pointer active:scale-[0.98] transition-transform duration-300 md:active:scale-100"
-                    onClick={() => openLightbox(index)}
-                  >
-                    <img
-                      src={card.image}
-                      alt={card.name}
-                      loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
-                    />
-                  </div>
+  cards.map((card, index) => (
+    <FadeInSection key={card.productId}>
+      <div className="group">
+        <div
+          className="relative overflow-hidden aspect-[3/4] bg-secondary cursor-pointer"
+          onClick={() => openLightbox(index)}
+        >
+          <img
+            src={card.image}
+            alt={card.name}
+            loading="lazy"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+    </FadeInSection>
+  ))
+}
 
                   {/* Info */}
                   <div className="mt-5 space-y-3">
