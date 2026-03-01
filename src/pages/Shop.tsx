@@ -182,7 +182,8 @@ if (stored) {
               ? "grid-cols-2 lg:grid-cols-3 gap-x-4 md:gap-x-8 lg:gap-x-10 gap-y-10 md:gap-y-20 lg:gap-y-24"
               : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 md:gap-x-6 gap-y-8 md:gap-y-18"
         }`}>
-          {cards.map((card, index) => {
+         {Array.isArray(cards) &&
+  cards.map((card, index) => {
             return (
               <FadeInSection key={card.productId}>
                 <div className="group">
