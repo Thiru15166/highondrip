@@ -10,13 +10,18 @@ interface ProductSizeSheetProps {
     name: string;
     price: number;
     image: string;
-   sizes: string[];
+    sizes?: string[]; // made optional for safety
     sleeveType?: string;
   } | null;
   onAddToCart: (productId: string, size: string) => void;
 }
 
-export default function ProductSizeSheet({ open, onOpenChange, product, onAddToCart }: ProductSizeSheetProps) {
+export default function ProductSizeSheet({
+  open,
+  onOpenChange,
+  product,
+  onAddToCart,
+}: ProductSizeSheetProps) {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [confirmed, setConfirmed] = useState(false);
 
@@ -30,12 +35,16 @@ export default function ProductSizeSheet({ open, onOpenChange, product, onAddToC
 
   const handleAdd = () => {
     if (!product || !selectedSize) return;
+
     setConfirmed(true);
     onAddToCart(product.productId, selectedSize);
+
     setTimeout(() => handleOpen(false), 700);
   };
 
   if (!product) return null;
+
+  const safeSizes = Array.isArray(product.sizes) ? product.sizes : [];
 
   return (
     <Sheet open={open} onOpenChange={handleOpen}>
@@ -46,42 +55,59 @@ export default function ProductSizeSheet({ open, onOpenChange, product, onAddToC
           </SheetTitle>
         </SheetHeader>
 
-        {/* Product summary */}
+        {/* Product Summary */}
         <div className="flex items-center gap-5 mb-8">
           <div className="w-20 h-24 bg-secondary overflow-hidden flex-shrink-0">
-            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
           </div>
+
           <div className="space-y-1.5">
-            <h3 className="text-[13px] tracking-[0.08em] uppercase font-medium">{product.name}</h3>
+            <h3 className="text-[13px] tracking-[0.08em] uppercase font-medium">
+              {product.name}
+            </h3>
+
             {product.sleeveType && (
               <p className="text-[10px] text-muted-foreground tracking-[0.15em] uppercase">
                 {product.sleeveType.trim().toLowerCase() === "full"
                   ? "Full Sleeve"
                   : product.sleeveType.trim().toLowerCase() === "half"
-                    ? "Half Sleeve"
-                    : ""}
+                  ? "Half Sleeve"
+                  : ""}
               </p>
             )}
-            <p className="text-[13px] font-serif tracking-wide text-muted-foreground">₹{product.price}</p>
+
+            <p className="text-[13px] font-serif tracking-wide text-muted-foreground">
+              ₹{product.price}
+            </p>
           </div>
         </div>
 
-{/* Sizes */}
-<div className="grid grid-cols-4 gap-3 mb-10">
-  {product?.sizes?.map((size) => (
-    <button
-      key={size}
-      onClick={() => setSelectedSize(size)}
-      className={`border py-3.5 text-[10px] tracking-[0.2em] uppercase transition-all duration-300 ${
-        selectedSize === size
-          ? "bg-foreground text-background border-foreground"
-          : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-      }`}
-    >
-      {size}
-    </button>
-  ))}
-</div>
+        {/* Sizes */}
+        <div className="grid grid-cols-4 gap-3 mb-10">
+          {safeSizes.length > 0 ? (
+            safeSizes.map((size) => (
+              <button
+                key={size}
+                onClick={() => setSelectedSize(size)}
+                className={`border py-3.5 text-[10px] tracking-[0.2em] uppercase transition-all duration-300 ${
+                  selectedSize === size
+                    ? "bg-foreground text-background border-foreground"
+                    : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                }`}
+              >
+                {size}
+              </button>
+            ))
+          ) : (
+            <p className="col-span-4 text-center text-xs text-muted-foreground">
+              No sizes available
+            </p>
+          )}
+        </div>
 
         {/* CTA */}
         <button
@@ -91,8 +117,8 @@ export default function ProductSizeSheet({ open, onOpenChange, product, onAddToC
             confirmed
               ? "bg-accent text-accent-foreground"
               : selectedSize
-                ? "bg-foreground text-background hover:bg-foreground/90"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
+              ? "bg-foreground text-background hover:bg-foreground/90"
+              : "bg-muted text-muted-foreground cursor-not-allowed"
           }`}
         >
           {confirmed ? (
